@@ -324,12 +324,18 @@
         async function extractPdfText(file){ if(!window.pdfjsLib) throw new Error('PDF 라이브러리 로드 실패'); const buf=await file.arrayBuffer(); const pdf=await pdfjsLib.getDocument({data:buf}).promise; let t=''; for(let i=1;i<=pdf.numPages;i++){ const pg=await pdf.getPage(i); const c=await pg.getTextContent(); t+=c.items.map(x=>x.str).join(' ')+'\n'; } return t; }
         async function callGemini(text, key){
             const prompt="다음 이력서 텍스트에서 강의/경력/출강 이력을 추출해 JSON 배열로만 출력해. 각 항목 필드: period(예 '2025.08' 또는 '2025.08 ~ 2025.09', 없으면 빈문자열), org(기관/기업명), title(과정/주제), description(한 줄 설명), category(다음 중 하나만: 대기업·금융, 정부·공공기관, 대학·교육, 기타), badge(2~4자 약칭 예 SNU/삼성/NIPA). 다른 설명 없이 JSON 배열만 출력.\n\n이력서:\n"+text.slice(0,15000);
-            const url='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+encodeURIComponent(key);
-            const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:'application/json',temperature:0.2}})});
-            if(!res.ok){ throw new Error('Gemini '+res.status+' — '+(await res.text()).slice(0,150)); }
-            const data=await res.json();
-            const parts=(((data.candidates||[])[0]||{}).content||{}).parts||[];
-            return JSON.parse((parts[0]||{}).text||'[]');
+            const models=['gemini-2.0-flash-lite','gemini-2.5-flash-lite','gemini-2.5-flash','gemini-2.0-flash','gemini-1.5-flash'];
+            let lastErr='알 수 없는 오류';
+            for(const m of models){
+                let res;
+                try{ res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+m+':generateContent?key='+encodeURIComponent(key),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:'application/json',temperature:0.2}})}); }
+                catch(e){ lastErr='네트워크 오류: '+e.message; continue; }
+                if(res.ok){ const data=await res.json(); const parts=(((data.candidates||[])[0]||{}).content||{}).parts||[]; return JSON.parse((parts[0]||{}).text||'[]'); }
+                lastErr='['+m+'] '+res.status+' — '+(await res.text()).slice(0,140);
+                if(res.status===429||res.status===404||res.status===400) continue;
+                break;
+            }
+            throw new Error(lastErr+'\n\n※ 모든 모델이 429(quota)면 이 키에 무료 한도가 없는 상태예요. Google AI Studio에서 [Create API key]로 새 프로젝트에 키를 다시 발급받아 넣어주세요. (또는 1~2분 후 재시도)');
         }
         $("analyzeBtn").onclick=async()=>{
             let key=localStorage.getItem('gemini-key')||$("geminiKey").value.trim();
