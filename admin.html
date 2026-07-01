@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <script>tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Pretendard','sans-serif']},colors:{brand:{DEFAULT:'#2563eb'}}}}}</script>
     <style>body{font-family:'Pretendard',sans-serif} html.dark{color-scheme:dark}</style>
 </head>
@@ -56,7 +57,14 @@
             <p class="text-sm text-blue-900 dark:text-blue-200 font-medium leading-relaxed">여기서 <b>추가 · 수정 · 삭제</b>하면 <a href="experience.html" target="_blank" class="font-bold underline underline-offset-2 hover:text-blue-700 dark:hover:text-blue-100">주요 이력 페이지</a>에 <b class="text-brand dark:text-blue-300">실시간으로 바로 반영</b>됩니다.</p>
         </div>
 
+        <!-- 탭 바 -->
+        <div class="flex gap-2 mb-5">
+            <button id="tabBtnList" class="px-5 py-2.5 rounded-full text-sm font-semibold bg-gray-900 dark:bg-brand text-white">📋 이력 관리</button>
+            <button id="tabBtnDash" class="px-5 py-2.5 rounded-full text-sm font-semibold border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300">📊 대시보드</button>
+        </div>
+
         <!-- 목록 (상단) -->
+        <div id="tabList">
         <div class="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between gap-3 flex-wrap">
                 <div class="flex items-center gap-3">
@@ -76,6 +84,31 @@
             </div>
             <div id="list" class="divide-y divide-gray-50 dark:divide-gray-800"></div>
             <div id="emptyMsg" class="hidden px-6 py-12 text-center text-gray-400 text-sm">등록된 이력이 없습니다. <b class="text-brand">＋ 새 이력 추가</b>로 등록해 보세요.</div>
+        </div>
+        </div>
+
+        <!-- 대시보드 탭 -->
+        <div id="tabDash" class="hidden">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+                <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-4 text-center"><div id="statTotal" class="text-2xl font-extrabold text-brand">0</div><div class="text-xs text-gray-400 mt-0.5">총 이력</div></div>
+                <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-4 text-center"><div id="statOrg" class="text-2xl font-extrabold text-brand">0</div><div class="text-xs text-gray-400 mt-0.5">기관 수</div></div>
+                <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-4 text-center"><div id="statYear" class="text-2xl font-extrabold text-brand">0</div><div class="text-xs text-gray-400 mt-0.5">활동 연도</div></div>
+                <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-4 text-center"><div id="statFeat" class="text-2xl font-extrabold text-brand">0</div><div class="text-xs text-gray-400 mt-0.5">대표 이력</div></div>
+            </div>
+            <div class="grid md:grid-cols-2 gap-5">
+                <div class="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm p-6">
+                    <h3 class="font-bold mb-0.5">분야별 비율</h3><p class="text-xs text-gray-400 mb-3">카테고리별 건수</p>
+                    <div class="h-64"><canvas id="chartCat"></canvas></div>
+                </div>
+                <div class="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm p-6">
+                    <h3 class="font-bold mb-0.5">년도별 비율</h3><p class="text-xs text-gray-400 mb-3">연도별 건수</p>
+                    <div class="h-64"><canvas id="chartYear"></canvas></div>
+                </div>
+                <div class="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 md:col-span-2">
+                    <h3 class="font-bold mb-0.5">기관 Top 10</h3><p class="text-xs text-gray-400 mb-3">가장 많이 출강한 기관 · 그 외 합산</p>
+                    <div class="h-72"><canvas id="chartOrg"></canvas></div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -159,8 +192,12 @@
                     <div>
                         <span class="text-xs font-semibold text-gray-500 dark:text-gray-400">이력서 파일 (PDF)</span>
                         <input id="resumeFile" type="file" accept="application/pdf,.pdf" class="mt-1 w-full text-sm text-gray-600 dark:text-gray-300 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-brand file:text-white file:text-sm file:font-semibold hover:file:bg-blue-700">
-                        <p class="mt-2 text-xs text-gray-400">또는 아래에 이력 텍스트를 직접 붙여넣어도 됩니다.</p>
-                        <textarea id="resumeText" rows="3" placeholder="이력서 텍스트 붙여넣기 (선택)" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 outline-none focus:border-brand text-sm"></textarea>
+                        <p class="mt-2 text-xs text-gray-400">또는 아래에 이력 텍스트를 직접 붙여넣거나 <b class="text-brand">🎤 음성</b>으로 말해도 됩니다.</p>
+                        <textarea id="resumeText" rows="3" placeholder="예) 2025년 8월 삼성전자에서 머신러닝 입문 강의를 진행했습니다..." class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 outline-none focus:border-brand text-sm"></textarea>
+                        <div class="mt-2 flex items-center gap-2">
+                            <button id="voiceBtn" type="button" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-gray-200 dark:border-gray-700 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition">🎤 음성으로 입력</button>
+                            <span id="voiceMsg" class="text-xs text-gray-400"></span>
+                        </div>
                     </div>
                     <div class="flex items-center gap-3">
                         <button id="analyzeBtn" type="button" class="px-6 py-3 bg-brand text-white rounded-xl font-semibold hover:bg-blue-700 transition">🔍 분석하기</button>
@@ -282,6 +319,7 @@
             const { data, error } = await sb.from("careers").select("*");
             if(error){ $("list").innerHTML='<div class="px-6 py-6 text-red-600 text-sm">불러오기 오류: '+esc(error.message)+'</div>'; return; }
             window._careers=data; populateYears(); renderList();
+            if(window._dashOn) drawDash();
         }
         ["searchBox","yearFilter","sortSel"].forEach(id=>{ $(id).addEventListener(id==="searchBox"?"input":"change", renderList); });
         $("refreshBtn").onclick=loadCareers;
@@ -380,6 +418,70 @@
             $("importMsg").textContent='';
             if(error){ alert('저장 오류: '+error.message); return; }
             closeImport(); loadCareers(); alert(finalRows.length+'건 추가 완료 ✓'+(skipped?(' (중복 '+skipped+'건 자동 제외)'):''));
+        };
+
+        // ── 📊 대시보드 (원형 차트) ──
+        var _charts={};
+        function drawDash(){
+            if(!window.Chart){ return; }
+            var data=(window._careers||[]);
+            var dark=document.documentElement.classList.contains('dark');
+            Chart.defaults.color = dark ? '#cbd5e1' : '#475569';
+            Chart.defaults.font.family = 'Pretendard, sans-serif';
+            var PAL=['#2563eb','#7c3aed','#0d9488','#e11d48','#f59e0b','#0ea5e9','#10b981','#8b5cf6','#ec4899','#64748b','#f97316','#14b8a6'];
+            var catC={}; data.forEach(function(r){ var c=(r.category||'기타'); catC[c]=(catC[c]||0)+1; });
+            var yrC={}; data.forEach(function(r){ var m=(r.period||'').match(/\d{4}/); var y=m?m[0]:'미상'; yrC[y]=(yrC[y]||0)+1; });
+            var yrs=Object.keys(yrC).sort();
+            var orgC={}; data.forEach(function(r){ var o=(r.org||'(미상)'); orgC[o]=(orgC[o]||0)+1; });
+            var orgSorted=Object.entries(orgC).sort(function(a,b){ return b[1]-a[1]; });
+            var top=orgSorted.slice(0,10), etc=orgSorted.slice(10).reduce(function(s,x){ return s+x[1]; },0);
+            var orgLabels=top.map(function(x){ return x[0]; }), orgVals=top.map(function(x){ return x[1]; });
+            if(etc){ orgLabels.push('그 외'); orgVals.push(etc); }
+            $("statTotal").textContent=data.length;
+            $("statOrg").textContent=Object.keys(orgC).length;
+            $("statYear").textContent=yrs.filter(function(y){ return y!=='미상'; }).length;
+            $("statFeat").textContent=data.filter(function(r){ return r.featured; }).length;
+            var mk=function(id,type,labels,vals,opts){
+                if(_charts[id]){ _charts[id].destroy(); }
+                _charts[id]=new Chart(document.getElementById(id),{
+                    type:type,
+                    data:{ labels:labels, datasets:[{ data:vals, backgroundColor:PAL, borderWidth:type==='bar'?0:2, borderColor:dark?'#0f172a':'#ffffff' }] },
+                    options:Object.assign({ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'right', labels:{ boxWidth:12, padding:8, font:{ size:11 } } } } }, opts||{})
+                });
+            };
+            mk('chartCat','doughnut',Object.keys(catC),Object.values(catC));
+            mk('chartYear','doughnut',yrs,yrs.map(function(y){ return yrC[y]; }));
+            mk('chartOrg','bar',orgLabels,orgVals,{ indexAxis:'y', plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ precision:0 } } } });
+        }
+        function switchTab(dash){
+            window._dashOn=dash;
+            $("tabList").classList.toggle("hidden", dash);
+            $("tabDash").classList.toggle("hidden", !dash);
+            var A='px-5 py-2.5 rounded-full text-sm font-semibold bg-gray-900 dark:bg-brand text-white';
+            var B='px-5 py-2.5 rounded-full text-sm font-semibold border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300';
+            $("tabBtnList").className = dash ? B : A;
+            $("tabBtnDash").className = dash ? A : B;
+            if(dash){ drawDash(); }
+        }
+        $("tabBtnList").onclick=function(){ switchTab(false); };
+        $("tabBtnDash").onclick=function(){ switchTab(true); };
+
+        // ── 🎤 음성으로 입력 (Web Speech API) ──
+        var _recog=null;
+        $("voiceBtn").onclick=function(){
+            var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+            if(!SR){ alert('이 브라우저는 음성 인식을 지원하지 않습니다.\nChrome(데스크톱/안드로이드)에서 사용해 주세요.'); return; }
+            if(_recog){ _recog.stop(); return; }
+            _recog=new SR(); _recog.lang='ko-KR'; _recog.interimResults=true; _recog.continuous=true;
+            var base=$("resumeText").value.trim();
+            $("voiceBtn").innerHTML='⏹ 녹음 중지'; $("voiceMsg").textContent='🔴 듣는 중… 이력을 말씀해 주세요';
+            _recog.onresult=function(e){
+                var t=''; for(var i=0;i<e.results.length;i++){ t+=e.results[i][0].transcript; }
+                $("resumeText").value=(base?base+' ':'')+t;
+            };
+            _recog.onerror=function(e){ $("voiceMsg").textContent='음성 오류: '+e.error+' (마이크 권한을 확인해 주세요)'; };
+            _recog.onend=function(){ $("voiceBtn").innerHTML='🎤 음성으로 입력'; if(!/오류/.test($("voiceMsg").textContent)){ $("voiceMsg").textContent='완료 — 아래 [🔍 분석하기]를 눌러주세요'; } _recog=null; };
+            _recog.start();
         };
 
         updatePeriodUI(); refreshSession();
