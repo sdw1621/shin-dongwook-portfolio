@@ -276,7 +276,27 @@
         var data = res.data; if(res.error || !data || !data.length) return;
         var esc = function(s){ return (s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); };
         var CAT_COLOR={'대기업·금융':'from-slate-700 to-slate-900','정부·공공기관':'from-blue-600 to-indigo-700','대학·교육':'from-violet-500 to-purple-600','기타':'from-teal-500 to-cyan-600'};
-        var badge = function(r){ var b=(r.badge||'').trim(); if(b && b.length<=3){ return esc(b); } return esc((r.org||'').replace(/[\s()\-·]/g,'').slice(0,2)); };
+        var _GEO=['대한민국','한국','대한','국가','전국','경기도','경기','서울특별시','서울','인천광역시','인천','부산','대구','광주','대전','울산','강원특별자치도','강원','충청북도','충청남도','충청','충북','충남','전라북도','전라남도','전북','전남','경상북도','경상남도','경북','경남','제주특별자치도','제주','세종특별자치시','성남','수원','고양','용인','안양','부천','광역시','특별시'].sort(function(a,b){return b.length-a.length;});
+        var _REJECT='대시도군구청', _GENERIC={'교육청':1,'시청':1,'도청':1,'군청':1,'구청':1,'병원':1,'대학':1,'대학교':1,'대학원':1};
+        var _BADGEO={'한국':1,'국가':1,'경기':1,'서울':1,'인천':1,'대한':1,'전국':1,'부산':1,'대구':1,'광주':1,'대전':1,'울산':1,'강원':1,'충남':1,'충북':1,'전남':1,'전북':1,'경남':1,'경북':1,'제주':1,'세종':1,'성남':1,'수원':1,'충청':1,'전라':1,'경상':1};
+        var keypointBadge = function(org, explicit){
+            var b=(explicit||'').trim();
+            if(/^[A-Za-z][A-Za-z0-9]{1,4}$/.test(b) && b===b.toUpperCase()) return b;      // 영문 약어 보존 (NIPA/SNU/KCA/DATA/DA)
+            if(b.length>=2 && b.length<=3 && !_BADGEO[b]) return b;                          // 좋은 짧은 배지 보존 (강원대/교육부/삼성)
+            var s=(org||'').replace(/[㈜㈔]/g,'').replace(/（/g,'(').replace(/）/g,')').replace(/\([^)]*\)/g,'');
+            s=s.replace(/^(주식회사|유한회사|사단법인|재단법인|학교법인|의료법인|사회복지법인|협동조합|비영리법인)\s*/,'').trim();
+            var re=/[A-Za-z][A-Za-z0-9]{1,5}/g, mm;                                          // 영문 키포인트: 맨앞 또는 ×/& 뒤
+            while((mm=re.exec(s))){ var pre=s.slice(0,mm.index).replace(/\s+$/,''); if(pre===''||/[×&]$/.test(pre)) return mm[0]; }
+            var j=s.replace(/[\s·×&,\/]+/g,'');
+            while(true){
+                var g=null; for(var i=0;i<_GEO.length;i++){ if(j.indexOf(_GEO[i])===0){ g=_GEO[i]; break; } }
+                if(!g) break;
+                var rem=j.slice(g.length);
+                if(rem.length>=2 && _REJECT.indexOf(rem.charAt(0))<0 && !_GENERIC[rem]) j=rem; else break;
+            }
+            return j.slice(0,2) || (org||'').slice(0,2);
+        };
+        var badge = function(r){ return esc(keypointBadge(r.org, r.badge)); };
         var grad = function(r){ return r.featured ? (esc(r.color)||'from-blue-600 to-indigo-700') : (CAT_COLOR[r.category]||'from-teal-500 to-cyan-600'); };
         var card = function(r){ return '<div class="reveal show group bg-white rounded-3xl border border-gray-100 p-7 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">'
           +'<div class="flex items-start justify-between gap-4 mb-5"><div class="w-12 h-12 shrink-0 rounded-2xl bg-gradient-to-br '+grad(r)+' flex items-center justify-center text-white font-extrabold text-sm tracking-tight shadow-lg">'+badge(r)+'</div>'
