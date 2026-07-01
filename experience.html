@@ -148,7 +148,7 @@
 
             <!-- 그 외 2025 출강 -->
             <div class="mt-8">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-5 reveal">그 외 2025 주요 출강</p>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-5 reveal">그 외 주요 출강 · 년도별</p>
                 <div id="exp-extra" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
 
                     <div class="reveal flex items-center gap-3.5 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
@@ -284,7 +284,7 @@
           +'<h3 class="text-lg font-bold mb-1">'+esc(r.org)+'</h3>'
           +'<p class="text-sm text-brand font-semibold mb-2">'+(esc(r.title)||'')+'</p>'
           +'<p class="text-sm text-gray-500 leading-relaxed">'+(esc(r.description)||'')+'</p></div>'; };
-        var mini = function(r){ return '<div class="reveal show flex items-center gap-3.5 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">'
+        var mini = function(r, cls){ return '<div class="reveal show '+(cls||'')+'flex items-center gap-3.5 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">'
           +'<div class="w-11 h-11 rounded-xl bg-gradient-to-br '+grad(r)+' flex items-center justify-center text-white font-bold text-base shrink-0 shadow-sm">'+badge(r)+'</div>'
           +'<div class="min-w-0"><div class="font-semibold text-sm leading-tight">'+esc(r.org)+'</div>'
           +'<div class="text-xs text-gray-500 mt-0.5 leading-snug">'+(esc(r.title)||esc(r.description)||'')+'</div></div></div>'; };
@@ -295,17 +295,36 @@
         if(ex){
             var CUR=(new Date()).getFullYear();
             var yrOf=function(r){ var m=(r.period||'').match(/\d{4}/); var y=m?parseInt(m[0]):0; return (y>CUR+1)?0:y; };
-            var recent=[], older=[];
-            extra.forEach(function(r){ var y=yrOf(r); if(y===0||y>=CUR-4){ recent.push(r); } else { older.push(r); } });
-            ex.innerHTML = recent.map(mini).join('');
+            var PREVIEW=5, OPEN_YEARS=2;
+            var groups={}; extra.forEach(function(r){ var y=yrOf(r)||'기타'; (groups[y]=groups[y]||[]).push(r); });
+            var years=Object.keys(groups).sort(function(a,b){ var av=(a==='기타'?-1:a*1), bv=(b==='기타'?-1:b*1); return bv-av; });
             var oldEl=document.getElementById('exp-older'); if(oldEl){ oldEl.remove(); }
-            if(older.length){
-                var groups={}; older.forEach(function(r){ var y=yrOf(r)||'기타'; (groups[y]=groups[y]||[]).push(r); });
-                var years=Object.keys(groups).sort(function(a,b){ return (b*1||0)-(a*1||0); });
-                var gh=''; years.forEach(function(y){ gh+='<div><h4 class="text-xs font-bold text-gray-400 mb-3">'+y+(y==='기타'?'':'년')+' <span class="text-gray-300">('+groups[y].length+')</span></h4><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">'+groups[y].map(mini).join('')+'</div></div>'; });
-                ex.insertAdjacentHTML('afterend', '<div id="exp-older" class="mt-8"><button id="olderToggle" class="inline-flex items-center gap-2 px-5 py-3 rounded-full border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition">📁 이전 이력 더보기 <span class="text-gray-400">('+older.length+'건 · '+(CUR-5)+'년 이전)</span> <span id="olderArrow">▾</span></button><div id="olderWrap" class="hidden mt-8 space-y-8">'+gh+'</div></div>');
-                document.getElementById('olderToggle').onclick=function(){ var w=document.getElementById('olderWrap'); w.classList.toggle('hidden'); var open=!w.classList.contains('hidden'); document.getElementById('olderArrow').textContent=open?'▴':'▾'; this.querySelector('span').textContent=open?'접기':'('+older.length+'건 · '+(CUR-5)+'년 이전)'; };
-            }
+            var html='';
+            years.forEach(function(y, yi){
+                var items=groups[y], open=(yi<OPEN_YEARS), label=(y==='기타'?'기타':y+'년');
+                var cells=items.map(function(r,i){ return mini(r, i>=PREVIEW?'more-item hidden ':''); }).join('');
+                var moreN=items.length-PREVIEW;
+                html+='<div class="year-sec">'
+                  +'<button type="button" class="year-toggle w-full flex items-center gap-2 mb-4 text-left">'
+                    +'<span class="text-sm font-extrabold text-gray-700">'+label+'</span>'
+                    +'<span class="text-xs font-bold text-gray-300">('+items.length+')</span>'
+                    +'<span class="year-arrow text-gray-400 transition-transform duration-200 '+(open?'rotate-180':'')+'">▾</span>'
+                    +'<span class="flex-1 border-t border-gray-100 ml-2"></span>'
+                  +'</button>'
+                  +'<div class="year-body '+(open?'':'hidden')+'">'
+                    +'<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">'+cells+'</div>'
+                    +(moreN>0?'<button type="button" class="more-btn mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition">＋ '+moreN+'개 더 보기</button>':'')
+                  +'</div>'
+                +'</div>';
+            });
+            ex.className='space-y-8';
+            ex.innerHTML=html;
+            ex.querySelectorAll('.year-toggle').forEach(function(btn){
+                btn.onclick=function(){ var body=btn.nextElementSibling, arrow=btn.querySelector('.year-arrow'); body.classList.toggle('hidden'); var open=!body.classList.contains('hidden'); if(arrow){ arrow.classList.toggle('rotate-180', open); } };
+            });
+            ex.querySelectorAll('.more-btn').forEach(function(btn){
+                btn.onclick=function(){ var body=btn.parentNode, hid=body.querySelectorAll('.more-item.hidden'); if(hid.length){ body.querySelectorAll('.more-item').forEach(function(el){ el.classList.remove('hidden'); }); btn.textContent='− 접기'; } else { var all=body.querySelectorAll('.more-item'); all.forEach(function(el){ el.classList.add('hidden'); }); btn.textContent='＋ '+all.length+'개 더 보기'; } };
+            });
         }
       }catch(e){ /* 오류 시 정적 콘텐츠 유지 */ }
     })();
