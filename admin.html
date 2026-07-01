@@ -5,16 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex">
     <title>이력 관리 · 신동욱</title>
+    <script>if(localStorage.getItem('admin-theme')==='dark')document.documentElement.classList.add('dark');</script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
     <script>
-        tailwind.config = { theme: { extend: { fontFamily: { sans: ['Pretendard','sans-serif'] }, colors: { brand: { DEFAULT: '#2563eb' } } } } }
+        tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { sans: ['Pretendard','sans-serif'] }, colors: { brand: { DEFAULT: '#2563eb' } } } } }
     </script>
-    <style> body { font-family: 'Pretendard', sans-serif; } </style>
+    <style>
+        body { font-family: 'Pretendard', sans-serif; }
+        html.dark { color-scheme: dark; }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-900 min-h-screen">
+<body class="bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen transition-colors">
+
+    <!-- 다크모드 토글 (로그인 화면용, 고정) -->
+    <button class="theme-btn fixed top-4 right-4 z-50 w-10 h-10 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-center text-lg" title="다크 모드"><span class="theme-icon">🌙</span></button>
 
     <!-- 설정 필요 배너 -->
     <div id="cfgBanner" class="hidden bg-amber-50 border-b border-amber-200 text-amber-800 text-sm px-6 py-3 text-center">
@@ -23,55 +30,76 @@
 
     <!-- 로그인 -->
     <div id="loginView" class="hidden min-h-screen flex items-center justify-center px-6">
-        <div class="w-full max-w-sm bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
+        <div class="w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800 p-8">
             <div class="flex items-center gap-2 mb-1">
                 <span class="text-2xl">🔐</span>
                 <h1 class="text-xl font-extrabold">이력 관리자</h1>
             </div>
-            <p class="text-sm text-gray-500 mb-6">신동욱 강사 포트폴리오 · 경력 DB 관리</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">신동욱 강사 포트폴리오 · 경력 DB 관리</p>
             <form id="loginForm" class="space-y-3">
-                <input id="email" type="email" required placeholder="이메일" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand outline-none text-sm">
-                <input id="password" type="password" required placeholder="비밀번호" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand outline-none text-sm">
-                <button type="submit" class="w-full py-3 bg-gray-900 text-white rounded-xl font-semibold hover:bg-gray-800 transition">로그인</button>
+                <input id="email" type="email" required placeholder="이메일" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-brand outline-none text-sm">
+                <input id="password" type="password" required placeholder="비밀번호" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-brand outline-none text-sm">
+                <button type="submit" class="w-full py-3 bg-gray-900 dark:bg-brand text-white rounded-xl font-semibold hover:bg-gray-800 dark:hover:bg-blue-700 transition">로그인</button>
             </form>
-            <p id="loginErr" class="hidden mt-3 text-sm text-red-600"></p>
+            <p id="loginErr" class="hidden mt-3 text-sm text-red-600 dark:text-red-400"></p>
         </div>
     </div>
 
     <!-- 앱 -->
     <div id="appView" class="hidden max-w-5xl mx-auto px-5 py-8">
-        <header class="flex items-center justify-between mb-8">
-            <div>
-                <h1 class="text-2xl font-extrabold">📋 이력 관리</h1>
-                <p class="text-sm text-gray-500 mt-0.5">추가·수정·삭제하면 <a href="experience.html" target="_blank" class="text-brand underline">주요 이력 페이지</a>에 바로 반영됩니다.</p>
-            </div>
-            <div class="flex items-center gap-3 text-sm">
-                <span id="userEmail" class="text-gray-400"></span>
-                <button id="logoutBtn" class="px-4 py-2 rounded-full border border-gray-200 hover:bg-gray-50 transition">로그아웃</button>
+        <header class="flex items-center justify-between gap-3 mb-5">
+            <h1 class="text-2xl font-extrabold">📋 이력 관리</h1>
+            <div class="flex items-center gap-2 text-sm">
+                <button class="theme-btn w-9 h-9 rounded-full border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition flex items-center justify-center" title="다크 모드"><span class="theme-icon">🌙</span></button>
+                <span id="userEmail" class="text-gray-400 hidden sm:inline"></span>
+                <button id="logoutBtn" class="px-4 py-2 rounded-full border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition">로그아웃</button>
             </div>
         </header>
 
+        <!-- 안내 배너 -->
+        <div class="mb-7 flex items-center gap-3 px-5 py-4 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 border border-blue-100 dark:border-blue-900">
+            <span class="text-2xl shrink-0">✨</span>
+            <p class="text-sm text-blue-900 dark:text-blue-200 font-medium leading-relaxed">여기서 <b>추가 · 수정 · 삭제</b>하면 <a href="experience.html" target="_blank" class="font-bold underline underline-offset-2 hover:text-blue-700 dark:hover:text-blue-100">주요 이력 페이지</a>에 <b class="text-brand dark:text-blue-300">실시간으로 바로 반영</b>됩니다.</p>
+        </div>
+
         <!-- 입력 폼 -->
-        <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 mb-8">
+        <div class="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 mb-8">
             <h2 id="formTitle" class="font-bold mb-4">새 이력 추가</h2>
             <form id="careerForm" class="grid md:grid-cols-2 gap-4">
                 <input type="hidden" id="editId">
-                <label class="block"><span class="text-xs font-semibold text-gray-500">기간</span>
-                    <input id="f_period" placeholder="예: 2025.08" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm"></label>
-                <label class="block"><span class="text-xs font-semibold text-gray-500">기관/기업 <span class="text-red-500">*</span></span>
-                    <input id="f_org" required placeholder="예: 삼성전자 (구미)" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm"></label>
-                <label class="block md:col-span-2"><span class="text-xs font-semibold text-gray-500">과정/주제</span>
-                    <input id="f_title" placeholder="예: 머신러닝 · 파워쿼리 실무과정" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm"></label>
-                <label class="block md:col-span-2"><span class="text-xs font-semibold text-gray-500">상세 설명</span>
-                    <textarea id="f_desc" rows="2" placeholder="한두 줄 설명" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm"></textarea></label>
-                <label class="block"><span class="text-xs font-semibold text-gray-500">카테고리</span>
-                    <select id="f_cat" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm bg-white">
+
+                <!-- 기간: 노션 스타일 날짜 선택 -->
+                <div class="md:col-span-2">
+                    <span class="text-xs font-semibold text-gray-500 dark:text-gray-400">기간</span>
+                    <div class="mt-1 flex flex-wrap items-center gap-2.5 p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                        <input id="f_start" type="date" class="px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:border-brand">
+                        <span id="startTimeWrap" class="hidden items-center"><input id="f_startTime" type="time" class="px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:border-brand"></span>
+                        <span id="endBlock" class="hidden items-center gap-2.5">
+                            <span class="text-gray-400">~</span>
+                            <input id="f_end" type="date" class="px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:border-brand">
+                            <span id="endTimeWrap" class="hidden items-center"><input id="f_endTime" type="time" class="px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:border-brand"></span>
+                        </span>
+                        <span class="w-px h-5 bg-gray-200 dark:bg-gray-600 mx-1"></span>
+                        <label class="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-300 cursor-pointer select-none"><input id="f_hasEnd" type="checkbox" class="w-3.5 h-3.5 accent-brand"> 종료일</label>
+                        <label class="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-300 cursor-pointer select-none"><input id="f_hasTime" type="checkbox" class="w-3.5 h-3.5 accent-brand"> 시간</label>
+                    </div>
+                    <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">표시 형식: <span id="periodPreview" class="font-mono font-bold text-brand dark:text-blue-300">—</span> <span class="text-gray-400">(비워두면 기간 표시 안 함)</span></p>
+                </div>
+
+                <label class="block"><span class="text-xs font-semibold text-gray-500 dark:text-gray-400">기관/기업 <span class="text-red-500">*</span></span>
+                    <input id="f_org" required placeholder="예: 삼성전자 (구미)" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 outline-none focus:border-brand text-sm"></label>
+                <label class="block"><span class="text-xs font-semibold text-gray-500 dark:text-gray-400">과정/주제</span>
+                    <input id="f_title" placeholder="예: 머신러닝 · 파워쿼리 실무과정" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 outline-none focus:border-brand text-sm"></label>
+                <label class="block md:col-span-2"><span class="text-xs font-semibold text-gray-500 dark:text-gray-400">상세 설명</span>
+                    <textarea id="f_desc" rows="2" placeholder="한두 줄 설명" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 outline-none focus:border-brand text-sm"></textarea></label>
+                <label class="block"><span class="text-xs font-semibold text-gray-500 dark:text-gray-400">카테고리</span>
+                    <select id="f_cat" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 outline-none focus:border-brand text-sm">
                         <option>대기업·금융</option><option>정부·공공기관</option><option>대학·교육</option><option selected>기타</option>
                     </select></label>
-                <label class="block"><span class="text-xs font-semibold text-gray-500">배지 약칭</span>
-                    <input id="f_badge" placeholder="예: SNU (없으면 비워두기)" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm"></label>
-                <label class="block"><span class="text-xs font-semibold text-gray-500">배지 색상</span>
-                    <select id="f_color" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm bg-white">
+                <label class="block"><span class="text-xs font-semibold text-gray-500 dark:text-gray-400">배지 약칭</span>
+                    <input id="f_badge" placeholder="예: SNU (없으면 비워두기)" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 outline-none focus:border-brand text-sm"></label>
+                <label class="block"><span class="text-xs font-semibold text-gray-500 dark:text-gray-400">배지 색상</span>
+                    <select id="f_color" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 outline-none focus:border-brand text-sm">
                         <option value="from-blue-600 to-indigo-700">파랑</option>
                         <option value="from-emerald-500 to-green-600">초록</option>
                         <option value="from-violet-500 to-purple-600">보라</option>
@@ -83,44 +111,51 @@
                         <option value="from-sky-600 to-blue-700">하늘</option>
                     </select></label>
                 <div class="flex items-center gap-6">
-                    <label class="flex items-center gap-2 text-sm"><input id="f_featured" type="checkbox" class="w-4 h-4"> <span class="font-semibold text-gray-600">대표 이력으로 강조</span></label>
-                    <label class="flex items-center gap-2 text-sm"><span class="text-xs font-semibold text-gray-500">정렬</span><input id="f_sort" type="number" value="0" class="w-20 px-2 py-1.5 rounded-lg border border-gray-200 text-sm"></label>
+                    <label class="flex items-center gap-2 text-sm"><input id="f_featured" type="checkbox" class="w-4 h-4 accent-brand"> <span class="font-semibold text-gray-600 dark:text-gray-300">대표 이력으로 강조</span></label>
+                    <label class="flex items-center gap-2 text-sm"><span class="text-xs font-semibold text-gray-500 dark:text-gray-400">정렬</span><input id="f_sort" type="number" value="0" class="w-20 px-2 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm"></label>
                 </div>
-                <div class="md:col-span-2 flex gap-2">
-                    <button type="submit" class="px-6 py-3 bg-brand text-white rounded-xl font-semibold hover:bg-blue-700 transition">저장</button>
-                    <button type="button" id="cancelEdit" class="hidden px-5 py-3 rounded-xl border border-gray-200 hover:bg-gray-50 transition">취소</button>
-                    <span id="saveMsg" class="self-center text-sm text-green-600"></span>
+                <div class="md:col-span-2 flex items-center justify-end gap-3">
+                    <span id="saveMsg" class="text-sm text-green-600 dark:text-green-400"></span>
+                    <button type="button" id="cancelEdit" class="hidden px-5 py-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition">취소</button>
+                    <button type="submit" class="px-7 py-3 bg-brand text-white rounded-xl font-semibold hover:bg-blue-700 transition shadow-sm shadow-blue-500/20">저장</button>
                 </div>
             </form>
         </div>
 
         <!-- 목록 -->
-        <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-3 flex-wrap">
+        <div class="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between gap-3 flex-wrap">
                 <h2 class="font-bold shrink-0">등록된 이력 <span id="count" class="text-gray-400 font-medium"></span></h2>
                 <div class="flex items-center gap-2 flex-wrap">
-                    <input id="searchBox" type="search" placeholder="🔍 기관·과정 검색" class="px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-brand w-44">
-                    <select id="yearFilter" class="px-3 py-2 rounded-lg border border-gray-200 text-sm bg-white outline-none focus:border-brand"><option value="">전체 년도</option></select>
-                    <select id="sortSel" class="px-3 py-2 rounded-lg border border-gray-200 text-sm bg-white outline-none focus:border-brand">
+                    <input id="searchBox" type="search" placeholder="🔍 기관·과정 검색" class="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm outline-none focus:border-brand w-44">
+                    <select id="yearFilter" class="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm outline-none focus:border-brand"><option value="">전체 년도</option></select>
+                    <select id="sortSel" class="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm outline-none focus:border-brand">
                         <option value="period_desc">최신순</option>
                         <option value="period_asc">오래된순</option>
                         <option value="sort_desc">정렬순서 ↓</option>
                         <option value="sort_asc">정렬순서 ↑</option>
                         <option value="org_asc">기관명순</option>
                     </select>
-                    <button id="refreshBtn" class="px-3 py-2 text-sm text-gray-500 hover:text-black rounded-lg border border-gray-200" title="새로고침">↻</button>
+                    <button id="refreshBtn" class="px-3 py-2 text-sm text-gray-500 hover:text-black dark:hover:text-white rounded-lg border border-gray-200 dark:border-gray-700" title="새로고침">↻</button>
                 </div>
             </div>
-            <div id="list" class="divide-y divide-gray-50"></div>
-            <div id="emptyMsg" class="hidden px-6 py-10 text-center text-gray-400 text-sm">아직 등록된 이력이 없습니다. 위에서 추가해 보세요.</div>
+            <div id="list" class="divide-y divide-gray-50 dark:divide-gray-800"></div>
+            <div id="emptyMsg" class="hidden px-6 py-10 text-center text-gray-400 text-sm">조건에 맞는 이력이 없습니다.</div>
         </div>
     </div>
 
     <script>
     (function () {
+        const $ = (id) => document.getElementById(id);
+
+        // ── 다크 모드 토글 (설정 여부와 무관하게 동작) ──
+        function applyIcons(){ const d=document.documentElement.classList.contains('dark'); document.querySelectorAll('.theme-icon').forEach(e=>e.textContent=d?'☀️':'🌙'); }
+        function toggleTheme(){ const d=document.documentElement.classList.toggle('dark'); localStorage.setItem('admin-theme', d?'dark':'light'); applyIcons(); }
+        document.querySelectorAll('.theme-btn').forEach(b=>b.onclick=toggleTheme);
+        applyIcons();
+
         const cfg = window.SUPABASE_CONFIG || {};
         const configured = cfg.url && cfg.anonKey && !cfg.url.includes("PASTE_");
-        const $ = (id) => document.getElementById(id);
         let sb = null;
 
         if (!configured) {
@@ -131,139 +166,151 @@
             return;
         }
         sb = window.supabase.createClient(cfg.url, cfg.anonKey);
-
         const CATS = ["대기업·금융","정부·공공기관","대학·교육","기타"];
+        function esc(s){ return (s||"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
 
-        async function refreshSession() {
-            const { data } = await sb.auth.getSession();
-            if (data.session) showApp(data.session.user); else showLogin();
-        }
+        // ── 세션/로그인 ──
+        async function refreshSession(){ const { data } = await sb.auth.getSession(); if (data.session) showApp(data.session.user); else showLogin(); }
         function showLogin(){ $("loginView").classList.remove("hidden"); $("appView").classList.add("hidden"); }
-        function showApp(user){
-            $("loginView").classList.add("hidden");
-            $("appView").classList.remove("hidden");
-            $("userEmail").textContent = user.email;
-            loadCareers();
-        }
-
+        function showApp(user){ $("loginView").classList.add("hidden"); $("appView").classList.remove("hidden"); $("userEmail").textContent = user.email; loadCareers(); }
         $("loginForm").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            $("loginErr").classList.add("hidden");
+            e.preventDefault(); $("loginErr").classList.add("hidden");
             const { error } = await sb.auth.signInWithPassword({ email: $("email").value, password: $("password").value });
             if (error) { $("loginErr").textContent = "로그인 실패: " + error.message; $("loginErr").classList.remove("hidden"); }
             else refreshSession();
         });
         $("logoutBtn").addEventListener("click", async () => { await sb.auth.signOut(); showLogin(); });
 
-        function esc(s){ return (s||"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
+        // ── 기간 날짜 선택기 (노션 스타일) ──
+        const show = (el,on)=>{ el.classList.toggle('hidden',!on); el.classList.toggle('inline-flex',on); };
+        const pad = (n)=>String(n).padStart(2,'0');
+        function fmtOne(dateStr, timeStr){
+            if(!dateStr) return "";
+            const [y,m,d]=dateStr.split("-");
+            let s = (d && d!=="01") || timeStr ? `${y}.${m}.${d}` : `${y}.${m}`;
+            if(timeStr) s += ` ${timeStr}`;
+            return s;
+        }
+        function buildPeriod(){
+            const s=$("f_start").value; if(!s) return "";
+            const ht=$("f_hasTime").checked, he=$("f_hasEnd").checked;
+            let out = fmtOne(s, ht?$("f_startTime").value:"");
+            if(he && $("f_end").value) out += " ~ " + fmtOne($("f_end").value, ht?$("f_endTime").value:"");
+            return out;
+        }
+        function updatePeriodUI(){
+            const ht=$("f_hasTime").checked, he=$("f_hasEnd").checked;
+            show($("endBlock"), he);
+            show($("startTimeWrap"), ht);
+            show($("endTimeWrap"), ht && he);
+            $("periodPreview").textContent = buildPeriod() || "—";
+        }
+        ["f_start","f_end","f_startTime","f_endTime","f_hasEnd","f_hasTime"].forEach(id=>$(id).addEventListener("input", updatePeriodUI));
+        function setPeriodInputs(period){
+            // 초기화
+            $("f_start").value=""; $("f_end").value=""; $("f_startTime").value=""; $("f_endTime").value="";
+            $("f_hasEnd").checked=false; $("f_hasTime").checked=false;
+            if(period){
+                const parts = period.split("~").map(x=>x.trim());
+                const parse = (str)=>{ const m=str.match(/(\d{4})[.\-](\d{1,2})(?:[.\-](\d{1,2}))?(?:\s+(\d{1,2}:\d{2}))?/); return m?{date:`${m[1]}-${pad(m[2])}-${pad(m[3]||'1')}`, time:m[4]||""}:null; };
+                const a=parse(parts[0]);
+                if(a){ $("f_start").value=a.date; if(a.time){ $("f_hasTime").checked=true; $("f_startTime").value=a.time; } }
+                if(parts[1]){ const b=parse(parts[1]); if(b){ $("f_hasEnd").checked=true; $("f_end").value=b.date; if(b.time){ $("f_hasTime").checked=true; $("f_endTime").value=b.time; } } }
+            }
+            updatePeriodUI();
+        }
 
+        // ── 목록 렌더 + 검색/년도/정렬 ──
         function rowHtml(r){ return `
-                <div class="px-6 py-4 flex items-start gap-4 hover:bg-gray-50">
+                <div class="px-6 py-4 flex items-start gap-4 hover:bg-gray-50 dark:hover:bg-gray-800/60">
                     <div class="w-11 h-11 shrink-0 rounded-xl bg-gradient-to-br ${esc(r.color)||'from-blue-600 to-indigo-700'} flex items-center justify-center text-white font-extrabold text-xs">${esc(r.badge)||(esc(r.org)||'').slice(0,2)}</div>
                     <div class="min-w-0 flex-1">
                         <div class="flex items-center gap-2 flex-wrap">
                             <span class="font-bold">${esc(r.org)}</span>
-                            ${r.featured?'<span class="text-[10px] font-bold text-violet-700 bg-violet-100 px-1.5 py-0.5 rounded-full">대표</span>':''}
+                            ${r.featured?'<span class="text-[10px] font-bold text-violet-700 dark:text-violet-300 bg-violet-100 dark:bg-violet-900/50 px-1.5 py-0.5 rounded-full">대표</span>':''}
                             <span class="text-xs text-gray-400">${esc(r.period)||''}</span>
-                            <span class="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">${esc(r.category)||'기타'}</span>
+                            <span class="text-[10px] text-gray-400 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded-full">${esc(r.category)||'기타'}</span>
                         </div>
-                        <div class="text-sm text-brand font-medium mt-0.5">${esc(r.title)||''}</div>
-                        <div class="text-xs text-gray-500 mt-0.5">${esc(r.description)||''}</div>
+                        <div class="text-sm text-brand dark:text-blue-300 font-medium mt-0.5">${esc(r.title)||''}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">${esc(r.description)||''}</div>
                     </div>
                     <div class="flex gap-1 shrink-0">
-                        <button data-edit="${r.id}" class="px-3 py-1.5 text-xs rounded-lg border border-gray-200 hover:bg-white">수정</button>
-                        <button data-del="${r.id}" class="px-3 py-1.5 text-xs rounded-lg border border-red-200 text-red-600 hover:bg-red-50">삭제</button>
+                        <button data-edit="${r.id}" class="px-3 py-1.5 text-xs rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-700">수정</button>
+                        <button data-del="${r.id}" class="px-3 py-1.5 text-xs rounded-lg border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40">삭제</button>
                     </div>
                 </div>`; }
-
-        const yearOf = (r) => (r.period||'').slice(0,4);
-
+        const yearOf = (r)=>(r.period||'').slice(0,4);
         function applyView(){
-            let rows = (window._careers||[]).slice();
-            const q = ($("searchBox").value||'').trim().toLowerCase();
-            const yr = $("yearFilter").value;
-            if (q) rows = rows.filter(r => ((r.org||'')+' '+(r.title||'')+' '+(r.description||'')+' '+(r.badge||'')).toLowerCase().includes(q));
-            if (yr) rows = rows.filter(r => yearOf(r)===yr);
-            const cmps = {
-                period_desc:(a,b)=>(b.period||'').localeCompare(a.period||''),
-                period_asc:(a,b)=>(a.period||'').localeCompare(b.period||''),
-                sort_desc:(a,b)=>(b.sort_order||0)-(a.sort_order||0),
-                sort_asc:(a,b)=>(a.sort_order||0)-(b.sort_order||0),
-                org_asc:(a,b)=>(a.org||'').localeCompare(b.org||'','ko')
-            };
-            rows.sort(cmps[$("sortSel").value] || cmps.period_desc);
+            let rows=(window._careers||[]).slice();
+            const q=($("searchBox").value||'').trim().toLowerCase(), yr=$("yearFilter").value;
+            if(q) rows=rows.filter(r=>((r.org||'')+' '+(r.title||'')+' '+(r.description||'')+' '+(r.badge||'')).toLowerCase().includes(q));
+            if(yr) rows=rows.filter(r=>yearOf(r)===yr);
+            const cmps={ period_desc:(a,b)=>(b.period||'').localeCompare(a.period||''), period_asc:(a,b)=>(a.period||'').localeCompare(b.period||''),
+                sort_desc:(a,b)=>(b.sort_order||0)-(a.sort_order||0), sort_asc:(a,b)=>(a.sort_order||0)-(b.sort_order||0), org_asc:(a,b)=>(a.org||'').localeCompare(b.org||'','ko') };
+            rows.sort(cmps[$("sortSel").value]||cmps.period_desc);
             return rows;
         }
-
         function renderList(){
-            const all = window._careers||[];
-            const rows = applyView();
+            const all=window._careers||[], rows=applyView();
             $("count").textContent = rows.length===all.length ? "("+all.length+")" : "("+rows.length+" / 전체 "+all.length+")";
             $("emptyMsg").classList.toggle("hidden", rows.length>0);
-            const list = $("list");
-            list.innerHTML = rows.map(rowHtml).join("");
-            list.querySelectorAll("[data-edit]").forEach(b => b.onclick = () => startEdit(all.find(x=>x.id===b.dataset.edit)));
-            list.querySelectorAll("[data-del]").forEach(b => b.onclick = () => del(b.dataset.del));
+            const list=$("list"); list.innerHTML=rows.map(rowHtml).join("");
+            list.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>startEdit(all.find(x=>x.id===b.dataset.edit)));
+            list.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>del(b.dataset.del));
         }
-
         function populateYears(){
-            const years = [...new Set((window._careers||[]).map(yearOf).filter(Boolean))].sort().reverse();
-            const sel = $("yearFilter"), cur = sel.value;
-            sel.innerHTML = '<option value="">전체 년도</option>' + years.map(y=>'<option value="'+y+'">'+y+'년</option>').join("");
-            if (years.includes(cur)) sel.value = cur;
+            const years=[...new Set((window._careers||[]).map(yearOf).filter(Boolean))].sort().reverse();
+            const sel=$("yearFilter"), cur=sel.value;
+            sel.innerHTML='<option value="">전체 년도</option>'+years.map(y=>'<option value="'+y+'">'+y+'년</option>').join("");
+            if(years.includes(cur)) sel.value=cur;
         }
-
-        async function loadCareers() {
+        async function loadCareers(){
             const { data, error } = await sb.from("careers").select("*");
-            if (error) { $("list").innerHTML = '<div class="px-6 py-6 text-red-600 text-sm">불러오기 오류: '+esc(error.message)+'</div>'; return; }
-            window._careers = data;
-            populateYears();
-            renderList();
+            if(error){ $("list").innerHTML='<div class="px-6 py-6 text-red-600 text-sm">불러오기 오류: '+esc(error.message)+'</div>'; return; }
+            window._careers=data; populateYears(); renderList();
         }
+        ["searchBox","yearFilter","sortSel"].forEach(id=>{ const el=$(id); el.addEventListener(id==="searchBox"?"input":"change", renderList); });
+        $("refreshBtn").onclick=loadCareers;
 
+        // ── 추가/수정/삭제 ──
         function startEdit(r){
-            $("editId").value = r.id;
-            $("f_period").value = r.period||""; $("f_org").value = r.org||""; $("f_title").value = r.title||"";
-            $("f_desc").value = r.description||""; $("f_cat").value = CATS.includes(r.category)?r.category:"기타";
-            $("f_badge").value = r.badge||""; $("f_color").value = r.color||"from-blue-600 to-indigo-700";
-            $("f_featured").checked = !!r.featured; $("f_sort").value = r.sort_order||0;
-            $("formTitle").textContent = "이력 수정"; $("cancelEdit").classList.remove("hidden");
+            if(!r) return;
+            $("editId").value=r.id; setPeriodInputs(r.period);
+            $("f_org").value=r.org||""; $("f_title").value=r.title||""; $("f_desc").value=r.description||"";
+            $("f_cat").value=CATS.includes(r.category)?r.category:"기타"; $("f_badge").value=r.badge||"";
+            $("f_color").value=r.color||"from-blue-600 to-indigo-700"; $("f_featured").checked=!!r.featured; $("f_sort").value=r.sort_order||0;
+            $("formTitle").textContent="이력 수정"; $("cancelEdit").classList.remove("hidden");
             window.scrollTo({top:0, behavior:"smooth"});
         }
         function resetForm(){
-            $("careerForm").reset(); $("editId").value=""; $("f_sort").value=0;
-            $("formTitle").textContent = "새 이력 추가"; $("cancelEdit").classList.add("hidden");
+            $("careerForm").reset(); $("editId").value=""; $("f_sort").value=0; setPeriodInputs("");
+            $("formTitle").textContent="새 이력 추가"; $("cancelEdit").classList.add("hidden");
         }
-        $("cancelEdit").onclick = resetForm;
+        $("cancelEdit").onclick=resetForm;
 
-        $("careerForm").addEventListener("submit", async (e) => {
+        $("careerForm").addEventListener("submit", async (e)=>{
             e.preventDefault();
-            const row = {
-                period: $("f_period").value.trim(), org: $("f_org").value.trim(), title: $("f_title").value.trim(),
-                description: $("f_desc").value.trim(), category: $("f_cat").value, badge: $("f_badge").value.trim(),
-                color: $("f_color").value, featured: $("f_featured").checked, sort_order: parseInt($("f_sort").value)||0
-            };
-            const id = $("editId").value;
-            let res;
-            if (id) res = await sb.from("careers").update(row).eq("id", id);
-            else res = await sb.from("careers").insert([row]);
-            if (res.error) { alert("저장 오류: " + res.error.message); return; }
+            const id=$("editId").value;
+            const org=$("f_org").value.trim(), title=$("f_title").value.trim();
+            // 중복 검사 (같은 기관 + 같은 과정/주제)
+            const dup=(window._careers||[]).find(c=> c.id!==id && (c.org||'').trim().toLowerCase()===org.toLowerCase() && (c.title||'').trim().toLowerCase()===title.toLowerCase());
+            if(dup){ if(!confirm("⚠️ 중복 가능성이 있습니다.\n\n이미 동일한 이력이 있어요:\n· "+dup.org+(dup.title?" / "+dup.title:"")+(dup.period?" ("+dup.period+")":"")+"\n\n그래도 저장할까요?")) return; }
+            const row={ period:buildPeriod(), org, title, description:$("f_desc").value.trim(), category:$("f_cat").value,
+                badge:$("f_badge").value.trim(), color:$("f_color").value, featured:$("f_featured").checked, sort_order:parseInt($("f_sort").value)||0 };
+            const res = id ? await sb.from("careers").update(row).eq("id",id) : await sb.from("careers").insert([row]);
+            if(res.error){ alert("저장 오류: "+res.error.message); return; }
             $("saveMsg").textContent = id ? "수정되었습니다 ✓" : "추가되었습니다 ✓";
             setTimeout(()=>$("saveMsg").textContent="", 2500);
             resetForm(); loadCareers();
         });
-
         async function del(id){
-            if (!confirm("이 이력을 삭제할까요?")) return;
-            const { error } = await sb.from("careers").delete().eq("id", id);
-            if (error) { alert("삭제 오류: " + error.message); return; }
+            if(!confirm("이 이력을 삭제할까요?")) return;
+            const { error } = await sb.from("careers").delete().eq("id",id);
+            if(error){ alert("삭제 오류: "+error.message); return; }
             loadCareers();
         }
-        $("refreshBtn").onclick = loadCareers;
-        $("searchBox").addEventListener("input", renderList);
-        $("yearFilter").addEventListener("change", renderList);
-        $("sortSel").addEventListener("change", renderList);
 
+        updatePeriodUI();
         refreshSession();
     })();
     </script>
