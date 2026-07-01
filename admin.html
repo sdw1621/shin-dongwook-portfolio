@@ -96,9 +96,20 @@
 
         <!-- 목록 -->
         <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                <h2 class="font-bold">등록된 이력 <span id="count" class="text-gray-400 font-medium"></span></h2>
-                <button id="refreshBtn" class="text-sm text-gray-500 hover:text-black">↻ 새로고침</button>
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-3 flex-wrap">
+                <h2 class="font-bold shrink-0">등록된 이력 <span id="count" class="text-gray-400 font-medium"></span></h2>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <input id="searchBox" type="search" placeholder="🔍 기관·과정 검색" class="px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-brand w-44">
+                    <select id="yearFilter" class="px-3 py-2 rounded-lg border border-gray-200 text-sm bg-white outline-none focus:border-brand"><option value="">전체 년도</option></select>
+                    <select id="sortSel" class="px-3 py-2 rounded-lg border border-gray-200 text-sm bg-white outline-none focus:border-brand">
+                        <option value="period_desc">최신순</option>
+                        <option value="period_asc">오래된순</option>
+                        <option value="sort_desc">정렬순서 ↓</option>
+                        <option value="sort_asc">정렬순서 ↑</option>
+                        <option value="org_asc">기관명순</option>
+                    </select>
+                    <button id="refreshBtn" class="px-3 py-2 text-sm text-gray-500 hover:text-black rounded-lg border border-gray-200" title="새로고침">↻</button>
+                </div>
             </div>
             <div id="list" class="divide-y divide-gray-50"></div>
             <div id="emptyMsg" class="hidden px-6 py-10 text-center text-gray-400 text-sm">아직 등록된 이력이 없습니다. 위에서 추가해 보세요.</div>
@@ -146,13 +157,7 @@
 
         function esc(s){ return (s||"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
 
-        async function loadCareers() {
-            const { data, error } = await sb.from("careers").select("*").order("sort_order", {ascending:false}).order("created_at", {ascending:false});
-            const list = $("list");
-            if (error) { list.innerHTML = '<div class="px-6 py-6 text-red-600 text-sm">불러오기 오류: '+esc(error.message)+'</div>'; return; }
-            $("count").textContent = "(" + data.length + ")";
-            $("emptyMsg").classList.toggle("hidden", data.length>0);
-            list.innerHTML = data.map(r => `
+        function rowHtml(r){ return `
                 <div class="px-6 py-4 flex items-start gap-4 hover:bg-gray-50">
                     <div class="w-11 h-11 shrink-0 rounded-xl bg-gradient-to-br ${esc(r.color)||'from-blue-600 to-indigo-700'} flex items-center justify-center text-white font-extrabold text-xs">${esc(r.badge)||(esc(r.org)||'').slice(0,2)}</div>
                     <div class="min-w-0 flex-1">
@@ -169,10 +174,51 @@
                         <button data-edit="${r.id}" class="px-3 py-1.5 text-xs rounded-lg border border-gray-200 hover:bg-white">수정</button>
                         <button data-del="${r.id}" class="px-3 py-1.5 text-xs rounded-lg border border-red-200 text-red-600 hover:bg-red-50">삭제</button>
                     </div>
-                </div>`).join("");
-            list.querySelectorAll("[data-edit]").forEach(b => b.onclick = () => startEdit(data.find(x=>x.id===b.dataset.edit)));
+                </div>`; }
+
+        const yearOf = (r) => (r.period||'').slice(0,4);
+
+        function applyView(){
+            let rows = (window._careers||[]).slice();
+            const q = ($("searchBox").value||'').trim().toLowerCase();
+            const yr = $("yearFilter").value;
+            if (q) rows = rows.filter(r => ((r.org||'')+' '+(r.title||'')+' '+(r.description||'')+' '+(r.badge||'')).toLowerCase().includes(q));
+            if (yr) rows = rows.filter(r => yearOf(r)===yr);
+            const cmps = {
+                period_desc:(a,b)=>(b.period||'').localeCompare(a.period||''),
+                period_asc:(a,b)=>(a.period||'').localeCompare(b.period||''),
+                sort_desc:(a,b)=>(b.sort_order||0)-(a.sort_order||0),
+                sort_asc:(a,b)=>(a.sort_order||0)-(b.sort_order||0),
+                org_asc:(a,b)=>(a.org||'').localeCompare(b.org||'','ko')
+            };
+            rows.sort(cmps[$("sortSel").value] || cmps.period_desc);
+            return rows;
+        }
+
+        function renderList(){
+            const all = window._careers||[];
+            const rows = applyView();
+            $("count").textContent = rows.length===all.length ? "("+all.length+")" : "("+rows.length+" / 전체 "+all.length+")";
+            $("emptyMsg").classList.toggle("hidden", rows.length>0);
+            const list = $("list");
+            list.innerHTML = rows.map(rowHtml).join("");
+            list.querySelectorAll("[data-edit]").forEach(b => b.onclick = () => startEdit(all.find(x=>x.id===b.dataset.edit)));
             list.querySelectorAll("[data-del]").forEach(b => b.onclick = () => del(b.dataset.del));
+        }
+
+        function populateYears(){
+            const years = [...new Set((window._careers||[]).map(yearOf).filter(Boolean))].sort().reverse();
+            const sel = $("yearFilter"), cur = sel.value;
+            sel.innerHTML = '<option value="">전체 년도</option>' + years.map(y=>'<option value="'+y+'">'+y+'년</option>').join("");
+            if (years.includes(cur)) sel.value = cur;
+        }
+
+        async function loadCareers() {
+            const { data, error } = await sb.from("careers").select("*");
+            if (error) { $("list").innerHTML = '<div class="px-6 py-6 text-red-600 text-sm">불러오기 오류: '+esc(error.message)+'</div>'; return; }
             window._careers = data;
+            populateYears();
+            renderList();
         }
 
         function startEdit(r){
@@ -214,6 +260,9 @@
             loadCareers();
         }
         $("refreshBtn").onclick = loadCareers;
+        $("searchBox").addEventListener("input", renderList);
+        $("yearFilter").addEventListener("change", renderList);
+        $("sortSel").addEventListener("change", renderList);
 
         refreshSession();
     })();
