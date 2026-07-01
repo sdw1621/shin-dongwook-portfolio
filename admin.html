@@ -276,9 +276,19 @@
         }
 
         // 목록
+        function badgeLabel(r){
+            var b=(r.badge||'').trim();
+            if(/^[A-Za-z][A-Za-z0-9]{1,4}$/.test(b) && b===b.toUpperCase()) return b;              // 영문 약어 보존 (NIPA/DATA/SNU)
+            if(b.length>=2 && b.length<=4 && !/한국|국가|경기|서울|인천|대한/.test(b)) return b;      // 좋은 짧은 배지 보존 (강원대/교육부/삼성)
+            var s=(r.org||'').replace(/[㈜㈔]/g,'').replace(/（/g,'(').replace(/）/g,')').replace(/\([^)]*\)/g,'');
+            s=s.replace(/^(주식회사|유한회사|사단법인|재단법인|학교법인|의료법인|사회복지법인|협동조합|비영리법인)\s*/,'');
+            s=s.replace(/^(대한민국|한국|국가|대한|전국)\s*/,'');                                     // 국가 접두어만 제거(지역명 유지)
+            s=s.replace(/[\s·×&,\/]+/g,'');
+            return s.slice(0,5) || (r.org||'').slice(0,2);
+        }
         function rowHtml(r){ return `
                 <div class="px-6 py-4 flex items-start gap-4 hover:bg-gray-50 dark:hover:bg-gray-800/60">
-                    <div class="w-11 h-11 shrink-0 rounded-xl bg-gradient-to-br ${esc(r.color)||'from-blue-600 to-indigo-700'} flex items-center justify-center text-white font-extrabold text-xs">${esc(r.badge)||(esc(r.org)||'').slice(0,2)}</div>
+                    <div class="w-11 h-11 shrink-0 rounded-xl bg-gradient-to-br ${esc(r.color)||'from-blue-600 to-indigo-700'} flex items-center justify-center text-center leading-[1.1] break-all text-white font-extrabold text-xs">${esc(badgeLabel(r))}</div>
                     <div class="min-w-0 flex-1">
                         <div class="flex items-center gap-2 flex-wrap">
                             <span class="font-bold">${esc(r.org)}</span>
