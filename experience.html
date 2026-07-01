@@ -291,7 +291,22 @@
         var feat = data.filter(function(r){return r.featured;});
         var extra = data.filter(function(r){return !r.featured;});
         var fe = document.getElementById('exp-featured'); if(feat.length && fe) fe.innerHTML = feat.map(card).join('');
-        var ex = document.getElementById('exp-extra'); if(extra.length && ex) ex.innerHTML = extra.map(mini).join('');
+        var ex = document.getElementById('exp-extra');
+        if(ex){
+            var CUR=(new Date()).getFullYear();
+            var yrOf=function(r){ var m=(r.period||'').match(/\d{4}/); var y=m?parseInt(m[0]):0; return (y>CUR+1)?0:y; };
+            var recent=[], older=[];
+            extra.forEach(function(r){ var y=yrOf(r); if(y===0||y>=CUR-4){ recent.push(r); } else { older.push(r); } });
+            ex.innerHTML = recent.map(mini).join('');
+            var oldEl=document.getElementById('exp-older'); if(oldEl){ oldEl.remove(); }
+            if(older.length){
+                var groups={}; older.forEach(function(r){ var y=yrOf(r)||'기타'; (groups[y]=groups[y]||[]).push(r); });
+                var years=Object.keys(groups).sort(function(a,b){ return (b*1||0)-(a*1||0); });
+                var gh=''; years.forEach(function(y){ gh+='<div><h4 class="text-xs font-bold text-gray-400 mb-3">'+y+(y==='기타'?'':'년')+' <span class="text-gray-300">('+groups[y].length+')</span></h4><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">'+groups[y].map(mini).join('')+'</div></div>'; });
+                ex.insertAdjacentHTML('afterend', '<div id="exp-older" class="mt-8"><button id="olderToggle" class="inline-flex items-center gap-2 px-5 py-3 rounded-full border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition">📁 이전 이력 더보기 <span class="text-gray-400">('+older.length+'건 · '+(CUR-5)+'년 이전)</span> <span id="olderArrow">▾</span></button><div id="olderWrap" class="hidden mt-8 space-y-8">'+gh+'</div></div>');
+                document.getElementById('olderToggle').onclick=function(){ var w=document.getElementById('olderWrap'); w.classList.toggle('hidden'); var open=!w.classList.contains('hidden'); document.getElementById('olderArrow').textContent=open?'▴':'▾'; this.querySelector('span').textContent=open?'접기':'('+older.length+'건 · '+(CUR-5)+'년 이전)'; };
+            }
+        }
       }catch(e){ /* 오류 시 정적 콘텐츠 유지 */ }
     })();
     </script>
