@@ -5,6 +5,6 @@
 //  anon key 는 공개되어도 안전합니다 (보안은 DB의 RLS 정책이 담당).
 // ============================================================
 window.SUPABASE_CONFIG = {
-  url:     "PASTE_PROJECT_URL_HERE",      // 예: https://abcd1234.supabase.co
-  anonKey: "PASTE_ANON_PUBLIC_KEY_HERE"   // eyJhbGci... 로 시작하는 긴 문자열
+  url:     "https://xexhbotmkwuspbrgtuoo.supabase.co",      // 예: https://abcd1234.supabase.co
+  anonKey: "sb_publishable_KvEbOGEnwN9AuK1etGbrVA_WhRZRsYp"   // eyJhbGci... 로 시작하는 긴 문자열
 };
