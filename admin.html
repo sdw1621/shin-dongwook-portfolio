@@ -35,7 +35,7 @@
                 <input id="su_name" type="text" placeholder="이름 (예: 홍길동)" autocomplete="name" class="hidden w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-brand outline-none text-sm">
                 <div id="su_handleWrap" class="hidden">
                     <div class="flex items-stretch rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus-within:border-brand overflow-hidden">
-                        <span class="px-3 flex items-center text-xs text-gray-400 bg-gray-50 dark:bg-gray-700 whitespace-nowrap">portfolio.html?u=</span>
+                        <span class="px-3 flex items-center text-xs text-gray-400 bg-gray-50 dark:bg-gray-700 whitespace-nowrap">…/@</span>
                         <input id="su_handle" type="text" placeholder="아이디 (영소문자·숫자)" autocomplete="username" class="flex-1 min-w-0 px-3 py-3 bg-transparent outline-none text-sm">
                     </div>
                     <p class="mt-1 text-xs text-gray-400">공개 포트폴리오 주소에 쓰입니다. 영소문자·숫자·하이픈 3~30자.</p>
@@ -301,7 +301,7 @@
                 if (res.error.code !== "23505") { console.warn("프로필 생성 실패:", res.error.message); return; }
             }
         }
-        function publicUrl(handle){ return new URL("portfolio.html?u=" + encodeURIComponent(handle), location.href).href; }
+        function publicUrl(handle){ return new URL("@" + handle, location.href).href; }   // 예: .../@hong (404.html 라우팅)
         function syncPublicLinks(handle){
             const url = handle ? publicUrl(handle) : "#";
             $("myPublicLink").href = url; $("bannerLink").href = url;
