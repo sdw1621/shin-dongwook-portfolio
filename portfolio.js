@@ -5,6 +5,35 @@
 (function(){
     var $ = function(id){ return document.getElementById(id); };
     var esc = function(s){ return (s||'').replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
+    // 기간 표시를 '년.월.일 시:분' 톤으로 통일 (시간 미지정 시 09:00~18:00). 저장 데이터는 그대로 두고 표시만 정규화.
+    var normalizePeriod = function(period){
+        if(!period) return "";
+        var s=String(period).trim(); if(!s) return "";
+        var pad=function(n){return String(n).padStart(2,'0');};
+        var ctxY="", ctxM="";
+        var parseToken=function(tok){
+            tok=(tok||"").trim(); if(!tok) return null;
+            var time="", tm=tok.match(/(\d{1,2}):(\d{2})/);
+            if(tm){ time=pad(tm[1])+":"+tm[2]; tok=tok.replace(tm[0],"").trim(); }
+            var m;
+            if((m=tok.match(/(\d{4})[.\-](\d{1,2})(?:[.\-](\d{1,2}))?/))){ ctxY=m[1]; ctxM=pad(m[2]); return {y:m[1],mo:pad(m[2]),d:m[3]?pad(m[3]):"",t:time}; }
+            if((m=tok.match(/^(\d{2})(\d{2})(\d{2})$/))){ ctxY="20"+m[1]; ctxM=m[2]; return {y:"20"+m[1],mo:m[2],d:m[3],t:time}; }
+            if((m=tok.match(/^(\d{1,2})$/)) && ctxY){ return {y:ctxY,mo:ctxM,d:pad(m[1]),t:time}; }
+            return null;
+        };
+        return s.split(",").map(function(x){return x.trim();}).filter(Boolean).map(function(g){
+            var parts=g.split("~").map(function(x){return x.trim();});
+            var a=parseToken(parts[0]); if(!a) return g;
+            var fmtDate=function(o){return o.y+"."+o.mo+"."+(o.d||"01");};
+            var startStr=fmtDate(a)+" "+(a.t||"09:00");
+            if(parts.length>1){
+                var b=parseToken(parts[1]); if(!b) return g;
+                var endT=b.t||"18:00";
+                return startStr+" ~ "+(fmtDate(b)===fmtDate(a)?endT:fmtDate(b)+" "+endT);
+            }
+            return a.t?startStr:startStr+" ~ 18:00";
+        }).join(", ");
+    };
     function show(id){ $('loading').classList.add('hidden'); $(id).classList.remove('hidden'); }
     function fail(msg){ if(msg) $('notfoundMsg').textContent = msg; show('notfound'); }
 
@@ -30,7 +59,7 @@
         return '<div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">'
           + '<div class="flex items-start justify-between gap-3 mb-4">'
             + '<div class="w-11 h-11 shrink-0 rounded-xl bg-gradient-to-br '+grad(r)+' flex items-center justify-center text-white font-extrabold text-sm shadow">'+badge(r)+'</div>'
-            + '<span class="text-xs font-semibold text-gray-400 pt-1">'+(esc(r.period)||'')+'</span>'
+            + '<span class="text-xs font-semibold text-gray-400 pt-1">'+(esc(normalizePeriod(r.period))||'')+'</span>'
           + '</div>'
           + '<h3 class="font-bold leading-tight mb-1">'+esc(r.org)+'</h3>'
           + (r.title ? '<p class="text-sm text-brand font-semibold mb-1.5">'+esc(r.title)+'</p>' : '')

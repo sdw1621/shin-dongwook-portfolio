@@ -273,6 +273,35 @@
         sb = window.supabase.createClient(cfg.url, cfg.anonKey);
         const CATS = ["대기업·금융","정부·공공기관","대학·교육","기타"];
         function esc(s){ return (s||"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
+        // 기간 표시를 '년.월.일 시:분' 톤으로 통일 (시간 미지정 시 09:00~18:00). 저장 데이터는 그대로 두고 표시만 정규화.
+        function normalizePeriod(period){
+            if(!period) return "";
+            var s=String(period).trim(); if(!s) return "";
+            var p=n=>String(n).padStart(2,'0');
+            var ctxY="", ctxM="";
+            var parseToken=tok=>{
+                tok=(tok||"").trim(); if(!tok) return null;
+                var time="", tm=tok.match(/(\d{1,2}):(\d{2})/);
+                if(tm){ time=p(tm[1])+":"+tm[2]; tok=tok.replace(tm[0],"").trim(); }
+                var m;
+                if((m=tok.match(/(\d{4})[.\-](\d{1,2})(?:[.\-](\d{1,2}))?/))){ ctxY=m[1]; ctxM=p(m[2]); return {y:m[1],mo:p(m[2]),d:m[3]?p(m[3]):"",t:time}; }
+                if((m=tok.match(/^(\d{2})(\d{2})(\d{2})$/))){ ctxY="20"+m[1]; ctxM=m[2]; return {y:"20"+m[1],mo:m[2],d:m[3],t:time}; }
+                if((m=tok.match(/^(\d{1,2})$/)) && ctxY){ return {y:ctxY,mo:ctxM,d:p(m[1]),t:time}; }
+                return null;
+            };
+            return s.split(",").map(x=>x.trim()).filter(Boolean).map(g=>{
+                var parts=g.split("~").map(x=>x.trim());
+                var a=parseToken(parts[0]); if(!a) return g;
+                var fmtDate=o=>o.y+"."+o.mo+"."+(o.d||"01");
+                var startStr=fmtDate(a)+" "+(a.t||"09:00");
+                if(parts.length>1){
+                    var b=parseToken(parts[1]); if(!b) return g;
+                    var endT=b.t||"18:00";
+                    return startStr+" ~ "+(fmtDate(b)===fmtDate(a)?endT:fmtDate(b)+" "+endT);
+                }
+                return a.t?startStr:startStr+" ~ 18:00";
+            }).join(", ");
+        }
 
         let currentUser = null, myProfile = null;
         async function refreshSession(){ const { data } = await sb.auth.getSession(); if (data.session) showApp(data.session.user); else showLogin(); }
@@ -413,7 +442,7 @@
         function buildPeriod(){ const s=$("f_start").value; if(!s) return ""; const ht=$("f_hasTime").checked, he=$("f_hasEnd").checked;
             let out=fmtOne(s, ht?$("f_startTime").value:""); if(he && $("f_end").value) out+=" ~ "+fmtOne($("f_end").value, ht?$("f_endTime").value:""); return out; }
         function updatePeriodUI(){ const ht=$("f_hasTime").checked, he=$("f_hasEnd").checked;
-            show($("endBlock"),he); show($("startTimeWrap"),ht); show($("endTimeWrap"),ht&&he); $("periodPreview").textContent=buildPeriod()||"—"; }
+            show($("endBlock"),he); show($("startTimeWrap"),ht); show($("endTimeWrap"),ht&&he); $("periodPreview").textContent=normalizePeriod(buildPeriod())||"—"; }
         ["f_start","f_end","f_startTime","f_endTime","f_hasEnd","f_hasTime"].forEach(id=>$(id).addEventListener("input", updatePeriodUI));
         function setPeriodInputs(period){
             $("f_start").value=""; $("f_end").value=""; $("f_startTime").value=""; $("f_endTime").value=""; $("f_hasEnd").checked=false; $("f_hasTime").checked=false;
@@ -442,7 +471,7 @@
                         <div class="flex items-center gap-2 flex-wrap">
                             <span class="font-bold">${esc(r.org)}</span>
                             ${r.featured?'<span class="text-[10px] font-bold text-violet-700 dark:text-violet-300 bg-violet-100 dark:bg-violet-900/50 px-1.5 py-0.5 rounded-full">대표</span>':''}
-                            <span class="text-xs text-gray-400">${esc(r.period)||''}</span>
+                            <span class="text-xs text-gray-400">${esc(normalizePeriod(r.period))||''}</span>
                             <span class="text-[10px] text-gray-400 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded-full">${esc(r.category)||'기타'}</span>
                         </div>
                         <div class="text-sm text-brand dark:text-blue-300 font-medium mt-0.5">${esc(r.title)||''}</div>
@@ -563,7 +592,7 @@
         };
         function renderImport(){
             $("importResults").classList.remove("hidden"); $("importCount").textContent='('+extracted.length+'건)'; $("selectAll").checked=true;
-            $("importList").innerHTML=extracted.map((r,i)=>'<label class="flex items-start gap-2 p-2 rounded-lg border border-gray-100 dark:border-gray-800 cursor-pointer"><input type="checkbox" class="imp-chk mt-1 accent-brand" data-i="'+i+'" checked><div class="text-sm min-w-0"><div class="font-semibold">'+(esc(r.org)||'(기관 미상)')+' <span class="text-xs text-gray-400">'+(esc(r.period)||'')+'</span> <span class="text-[10px] bg-gray-100 dark:bg-gray-800 px-1 rounded">'+(esc(r.category)||'기타')+'</span></div><div class="text-brand dark:text-blue-300">'+(esc(r.title)||'')+'</div><div class="text-xs text-gray-500">'+(esc(r.description)||'')+'</div></div></label>').join('');
+            $("importList").innerHTML=extracted.map((r,i)=>'<label class="flex items-start gap-2 p-2 rounded-lg border border-gray-100 dark:border-gray-800 cursor-pointer"><input type="checkbox" class="imp-chk mt-1 accent-brand" data-i="'+i+'" checked><div class="text-sm min-w-0"><div class="font-semibold">'+(esc(r.org)||'(기관 미상)')+' <span class="text-xs text-gray-400">'+(esc(normalizePeriod(r.period))||'')+'</span> <span class="text-[10px] bg-gray-100 dark:bg-gray-800 px-1 rounded">'+(esc(r.category)||'기타')+'</span></div><div class="text-brand dark:text-blue-300">'+(esc(r.title)||'')+'</div><div class="text-xs text-gray-500">'+(esc(r.description)||'')+'</div></div></label>').join('');
         }
         $("selectAll").onchange=(e)=>{ document.querySelectorAll('.imp-chk').forEach(c=>c.checked=e.target.checked); };
         $("importSave").onclick=async()=>{
