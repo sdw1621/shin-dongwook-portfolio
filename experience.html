@@ -191,6 +191,8 @@
         var sb = window.supabase.createClient(cfg.url, cfg.anonKey);
         var res = await sb.from('careers').select('*').order('sort_order',{ascending:false}).order('created_at',{ascending:false});
         var data = res.data; if(res.error || !data || !data.length) return;
+        // 이력서 기본정보(사진·이름·연락처 등) — profile 테이블(단일 행). 없으면 무시.
+        var prof=null; try{ var pr=await sb.from('profile').select('*').limit(1); if(!pr.error && pr.data && pr.data.length) prof=pr.data[0]; }catch(_pe){}
         var esc = function(s){ return (s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); };
         // 기간 표시를 '년.월.일 시:분' 톤으로 통일 (시간 미지정 시 09:00~18:00). 저장 데이터는 그대로 두고 표시만 정규화.
         var normalizePeriod = function(period){
@@ -221,6 +223,19 @@
                 return a.t?startStr:startStr+" ~ 18:00";
             }).join(", ");
         };
+        // period → 포함 연도 목록(범위 확장). '2021.03 ~ 현재' → [2021..올해]. 6자리 압축값도 normalizePeriod로 정규화 후 추출.
+        var CURY=(new Date()).getFullYear();
+        var yearsOf=function(period){
+            var raw=String(period||''); if(!raw) return [];
+            var s=normalizePeriod(period)||raw;
+            var ms=s.match(/\d{4}/g)||[];
+            var ys=ms.map(function(x){return parseInt(x,10);}).filter(function(y){return y>=1990&&y<=2100;});
+            if(/현재|진행|재직|now|present/i.test(raw)) ys.push(CURY);
+            if(!ys.length) return [];
+            var lo=Math.min.apply(null,ys), hi=Math.max.apply(null,ys), out=[];
+            for(var y=lo;y<=hi;y++) out.push(y);
+            return out;
+        };
         var CAT_COLOR={'대기업·금융':'from-slate-700 to-slate-900','정부·공공기관':'from-blue-600 to-indigo-700','대학·교육':'from-violet-500 to-purple-600','기타':'from-teal-500 to-cyan-600'};
         var _GEO=['대한민국','한국','대한','국가','전국','경기도','경기','서울특별시','서울','인천광역시','인천','부산','대구','광주','대전','울산','강원특별자치도','강원','충청북도','충청남도','충청','충북','충남','전라북도','전라남도','전북','전남','경상북도','경상남도','경북','경남','제주특별자치도','제주','세종특별자치시','성남','수원','고양','용인','안양','부천','광역시','특별시'].sort(function(a,b){return b.length-a.length;});
         var _REJECT='대시도군구청', _GENERIC={'교육청':1,'시청':1,'도청':1,'군청':1,'구청':1,'병원':1,'대학':1,'대학교':1,'대학원':1};
@@ -244,7 +259,7 @@
         };
         var badge = function(r){ return esc(keypointBadge(r.org, r.badge)); };
         var grad = function(r){ return r.featured ? (esc(r.color)||'from-blue-600 to-indigo-700') : (CAT_COLOR[r.category]||'from-teal-500 to-cyan-600'); };
-        var fdata = function(r){ return ' data-s="'+esc(((r.org||'')+' '+(r.title||'')+' '+(r.description||'')).toLowerCase())+'" data-y="'+(((r.period||'').match(/\d{4}/)||[''])[0])+'"'; };
+        var fdata = function(r){ return ' data-s="'+esc(((r.org||'')+' '+(r.title||'')+' '+(r.description||'')).toLowerCase())+'" data-y="'+yearsOf(r.period).join(' ')+'"'; };
         var card = function(r){ return '<div class="reveal show group exp-card bg-white rounded-3xl border border-gray-100 p-7 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full"'+fdata(r)+'>'
           +'<div class="flex items-start justify-between gap-4 mb-5"><div class="w-12 h-12 shrink-0 rounded-2xl bg-gradient-to-br '+grad(r)+' flex items-center justify-center text-white font-extrabold text-sm tracking-tight shadow-lg">'+badge(r)+'</div>'
           +'<span class="text-xs font-semibold text-gray-400 text-right leading-relaxed pt-0.5">'+(esc(normalizePeriod(r.period))||'')+'</span></div>'
@@ -283,14 +298,14 @@
         // ── 필터(검색·연도) + 다운로드(Excel/PDF) — 모든 탭 공통 ──
         (function(){
             var all=data.slice();
-            var yset={}; all.forEach(function(r){ var m=(r.period||'').match(/\d{4}/); if(m) yset[m[0]]=1; });
+            var yset={}; all.forEach(function(r){ yearsOf(r.period).forEach(function(y){ yset[y]=1; }); });
             var ysel=document.getElementById('exp-year');
             if(ysel){ Object.keys(yset).sort(function(a,b){return b-a;}).forEach(function(y){ var o=document.createElement('option'); o.value=y; o.textContent=y+'년'; ysel.appendChild(o); }); }
             var si=document.getElementById('exp-search');
             function apply(){ var q=((si&&si.value)||'').trim().toLowerCase(), y=(ysel&&ysel.value)||'';
                 document.querySelectorAll('.exp-card').forEach(function(el){
                     var okS=!q||(el.getAttribute('data-s')||'').indexOf(q)>=0;
-                    var okY=!y||(el.getAttribute('data-y')||'')===y;
+                    var okY=!y||((' '+(el.getAttribute('data-y')||'')+' ').indexOf(' '+y+' ')>=0);
                     el.classList.toggle('exp-hide', !(okS&&okY)); }); }
             if(si) si.addEventListener('input', apply);
             if(ysel) ysel.addEventListener('change', apply);
@@ -299,12 +314,29 @@
             var ORDER=['academic','career','lecture','project','education'];
             var sorted=all.slice().sort(function(a,b){ var ka=ORDER.indexOf(a.kind||'lecture'), kb=ORDER.indexOf(b.kind||'lecture'); if(ka!==kb) return ka-kb; return (b.period||'').localeCompare(a.period||''); });
             var curRows=function(){ var q=((si&&si.value)||'').trim().toLowerCase(), y=(ysel&&ysel.value)||'';
-                return sorted.filter(function(r){ var s=((r.org||'')+' '+(r.title||'')+' '+(r.description||'')).toLowerCase(); var ry=((r.period||'').match(/\d{4}/)||[''])[0]; return (!q||s.indexOf(q)>=0)&&(!y||ry===y); }); };
+                return sorted.filter(function(r){ var s=((r.org||'')+' '+(r.title||'')+' '+(r.description||'')).toLowerCase(); return (!q||s.indexOf(q)>=0)&&(!y||yearsOf(r.period).indexOf(parseInt(y,10))>=0); }); };
+            // 만 나이(대한민국) 계산
+            var ageOf=function(birth){ if(!birth) return ''; var b=new Date(birth); if(isNaN(b.getTime())) return ''; var t=new Date(); var a=t.getFullYear()-b.getFullYear(); if(t.getMonth()<b.getMonth()||(t.getMonth()===b.getMonth()&&t.getDate()<b.getDate())) a--; return a; };
+            var birthFmt=function(birth){ if(!birth) return ''; var b=new Date(birth); if(isNaN(b.getTime())) return String(birth); var p=function(n){return String(n).padStart(2,'0');}; return b.getFullYear()+'.'+p(b.getMonth()+1)+'.'+p(b.getDate()); };
+            // 이름 표기(한글 (영문 / 한자))
+            var nameLine=function(p){ if(!p) return ''; var sub=[p.name_en,p.name_hanja].filter(Boolean).join(' / '); return (p.name_ko||'')+(sub?' ('+sub+')':''); };
+            // 기본정보 → [라벨, 값] 목록
+            var profRows=function(p){ if(!p) return []; var age=ageOf(p.birth); var bf=birthFmt(p.birth); var out=[];
+                if(nameLine(p)) out.push(['이름', nameLine(p)]);
+                if(bf) out.push(['생년월일', bf+(age!==''?' (만 '+age+'세)':'')]);
+                if(p.phone) out.push(['휴대전화', p.phone]);
+                if(p.email) out.push(['이메일', p.email]);
+                if(p.address) out.push(['주소', p.address]);
+                if(p.job_target) out.push(['희망직무', p.job_target]);
+                return out; };
             var xb=document.getElementById('exp-xlsx');
             if(xb) xb.onclick=function(){
-                var head=['구분','기관/회사','과정/직위','기간','설명'];
-                var rows=curRows().map(function(r){ return [KL[r.kind||'lecture']||'강의',r.org||'',r.title||'',r.period||'',r.description||'']; });
-                var csv=[head].concat(rows).map(function(row){ return row.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\r\n');
+                var lines=[];
+                var pr=profRows(prof);
+                if(pr.length){ lines.push(['이력서']); pr.forEach(function(kv){ lines.push(kv); }); lines.push([]); }
+                lines.push(['구분','기관/회사','과정/직위','기간','설명']);
+                curRows().forEach(function(r){ lines.push([KL[r.kind||'lecture']||'강의',r.org||'',r.title||'',r.period||'',r.description||'']); });
+                var csv=lines.map(function(row){ return row.map(function(c){ return '"'+String(c==null?'':c).replace(/"/g,'""')+'"'; }).join(','); }).join('\r\n');
                 var blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
                 var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='신동욱_이력.csv'; document.body.appendChild(a); a.click(); a.remove(); };
             var pb=document.getElementById('exp-pdf');
@@ -316,8 +348,16 @@
                     sec+='<h2>'+KL[k]+'</h2><table><thead><tr><th>기간</th><th>기관/회사</th><th>과정/직위</th><th>설명</th></tr></thead><tbody>';
                     it.forEach(function(r){ sec+='<tr><td>'+e2(r.period)+'</td><td>'+e2(r.org)+'</td><td>'+e2(r.title)+'</td><td>'+e2(r.description)+'</td></tr>'; });
                     sec+='</tbody></table>'; });
+                // 상단 기본정보 카드(사진 + 인적사항)
+                var hdr='';
+                var pr=profRows(prof);
+                if(pr.length || (prof&&prof.photo_url)){
+                    var photo=(prof&&prof.photo_url)?'<td class="ph"><img src="'+e2(prof.photo_url)+'" alt="사진"></td>':'<td class="ph"><div class="nophoto">사진</div></td>';
+                    var info=pr.map(function(kv){ return '<tr><th>'+e2(kv[0])+'</th><td>'+e2(kv[1])+'</td></tr>'; }).join('');
+                    hdr='<table class="profile"><tr>'+photo+'<td class="info"><table class="pinfo">'+info+'</table></td></tr></table>';
+                }
                 var w=window.open('','_blank'); if(!w){ alert('팝업이 차단되었습니다. 팝업을 허용해 주세요.'); return; }
-                w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>신동욱 이력</title><style>body{font-family:Pretendard,system-ui,sans-serif;color:#111;padding:32px}h1{font-size:22px;margin:0 0 4px}p.sub{color:#666;margin:0 0 20px;font-size:13px}h2{font-size:15px;margin:22px 0 8px;color:#2563eb;border-bottom:2px solid #2563eb;padding-bottom:4px}table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8px}th,td{border:1px solid #e5e7eb;padding:6px 8px;text-align:left;vertical-align:top}th{background:#f8fafc;font-weight:700}@media print{body{padding:0}}</style></head><body><h1>신동욱 이력</h1><p class="sub">AI인터시스 대표이사 · 생성형 AI · 데이터 · 프로그래밍 교육</p>'+sec+'<scr'+'ipt>window.onload=function(){window.print();}</scr'+'ipt></body></html>');
+                w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>신동욱 이력서</title><style>body{font-family:Pretendard,system-ui,sans-serif;color:#111;padding:32px}h1{font-size:22px;margin:0 0 4px}p.sub{color:#666;margin:0 0 16px;font-size:13px}h2{font-size:15px;margin:22px 0 8px;color:#2563eb;border-bottom:2px solid #2563eb;padding-bottom:4px}table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8px}th,td{border:1px solid #e5e7eb;padding:6px 8px;text-align:left;vertical-align:top}th{background:#f8fafc;font-weight:700}table.profile{margin:0 0 20px}table.profile>tbody>tr>td{border:1px solid #d1d5db;padding:0}td.ph{width:120px;text-align:center;vertical-align:middle;background:#fff;padding:8px}td.ph img{width:100px;height:130px;object-fit:cover;border:1px solid #d1d5db}td.ph .nophoto{width:100px;height:130px;display:flex;align-items:center;justify-content:center;color:#9ca3af;border:1px dashed #d1d5db;margin:0 auto;font-size:12px}td.info{padding:0}table.pinfo{margin:0}table.pinfo th{width:90px;white-space:nowrap}@media print{body{padding:0}}</style></head><body><h1>신동욱 이력서</h1><p class="sub">AI인터시스 대표이사 · 생성형 AI · 데이터 · 프로그래밍 교육</p>'+hdr+sec+'<scr'+'ipt>window.onload=function(){setTimeout(function(){window.print();},300);}</scr'+'ipt></body></html>');
                 w.document.close(); };
         })();
         // (탭 전환은 아래 독립 블록에서 처리 — 데이터 로드와 무관)
