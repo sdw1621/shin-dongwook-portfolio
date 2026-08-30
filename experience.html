@@ -350,22 +350,31 @@
             var filterDesc=function(){ var fq=((si&&si.value)||'').trim(), fy=((ysel&&ysel.value)||''); var parts=[]; if(fy) parts.push('연도 '+fy+'년'); if(fq) parts.push('검색 "'+fq+'"'); return parts.length?parts.join(' · '):'전체'; };
             var xb=document.getElementById('exp-xlsx');
             if(xb) xb.onclick=function(){
-                var lines=[];
                 var pr=profRows(prof);
-                if(pr.length){ lines.push(['이력서']); pr.forEach(function(kv){ lines.push(kv); }); }
                 var cr=curRows();
-                lines.push(['조회조건', filterDesc()+' · 총 '+cr.length+'건']); lines.push([]);
-                lines.push(['구분','기관/회사','과정/직위','기간','설명']);
-                cr.forEach(function(r){ lines.push([KL[r.kind||'lecture']||'강의',r.org||'',r.title||'',r.period||'',r.description||'']); });
-                // 진짜 Excel(.xlsx) 파일로 저장 — CSV 경고("데이터 손실") 없이 열림
+                // 진짜 Excel(.xlsx) — 영역별 시트로 분리 저장 (기본정보 + 학력/경력/강의·출강/프로젝트·연구/교육이수)
                 if(window.XLSX){
-                    var ws=XLSX.utils.aoa_to_sheet(lines);
-                    ws['!cols']=[{wch:12},{wch:24},{wch:22},{wch:26},{wch:52}];
-                    var wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, '이력');
+                    var wb=XLSX.utils.book_new();
+                    var info=[];
+                    if(pr.length){ info.push(['이력서']); pr.forEach(function(kv){ info.push(kv); }); }
+                    info.push(['조회조건', filterDesc()+' · 총 '+cr.length+'건']);
+                    var wi=XLSX.utils.aoa_to_sheet(info); wi['!cols']=[{wch:12},{wch:60}];
+                    XLSX.utils.book_append_sheet(wb, wi, '기본정보');
+                    ORDER.forEach(function(k){ var it=cr.filter(function(r){return (r.kind||'lecture')===k;}); if(!it.length) return;
+                        var aoa=[['기간','기관/회사','과정/직위','설명']];
+                        it.forEach(function(r){ aoa.push([r.period||'',r.org||'',r.title||'',r.description||'']); });
+                        var ws=XLSX.utils.aoa_to_sheet(aoa); ws['!cols']=[{wch:26},{wch:24},{wch:24},{wch:52}];
+                        XLSX.utils.book_append_sheet(wb, ws, KL[k]||k);
+                    });
                     XLSX.writeFile(wb, '신동욱_이력.xlsx');
                     return;
                 }
-                // XLSX 로드 실패 시에만 CSV로 폴백
+                // XLSX 로드 실패 시에만 CSV로 폴백 (단일 시트)
+                var lines=[];
+                if(pr.length){ lines.push(['이력서']); pr.forEach(function(kv){ lines.push(kv); }); }
+                lines.push(['조회조건', filterDesc()+' · 총 '+cr.length+'건']); lines.push([]);
+                lines.push(['구분','기관/회사','과정/직위','기간','설명']);
+                cr.forEach(function(r){ lines.push([KL[r.kind||'lecture']||'강의',r.org||'',r.title||'',r.period||'',r.description||'']); });
                 var csv=lines.map(function(row){ return row.map(function(c){ return '"'+String(c==null?'':c).replace(/"/g,'""')+'"'; }).join(','); }).join('\r\n');
                 var blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
                 var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='신동욱_이력.csv'; document.body.appendChild(a); a.click(); a.remove(); };
