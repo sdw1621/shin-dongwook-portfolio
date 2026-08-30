@@ -137,8 +137,20 @@
                         <input id="p_email" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 outline-none focus:border-brand text-sm"></label>
                     <label class="text-sm md:col-span-2"><span class="text-xs font-semibold text-gray-500 dark:text-gray-400">주소</span>
                         <input id="p_address" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 outline-none focus:border-brand text-sm"></label>
-                    <label class="text-sm md:col-span-2"><span class="text-xs font-semibold text-gray-500 dark:text-gray-400">증명사진 URL <span class="text-gray-400 font-normal">(선택 · 없으면 PDF에 ‘사진’ 자리표시)</span></span>
-                        <input id="p_photo_url" placeholder="https://…" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 outline-none focus:border-brand text-sm"></label>
+                    <div class="text-sm md:col-span-2">
+                        <span class="text-xs font-semibold text-gray-500 dark:text-gray-400">증명사진 <span class="text-gray-400 font-normal">(선택 · 없으면 PDF에 ‘사진’ 자리표시)</span></span>
+                        <div class="mt-1 flex items-start gap-3">
+                            <div id="p_photo_preview" class="w-[72px] h-[94px] shrink-0 rounded-lg border border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-[11px] text-gray-400 overflow-hidden">사진</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <label class="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full text-xs font-semibold cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition">📷 사진 선택<input id="p_photo_file" type="file" accept="image/*" class="hidden"></label>
+                                    <button type="button" id="p_photo_clear" class="px-3 py-2 rounded-full text-xs font-semibold text-gray-500 border border-gray-200 dark:border-gray-700 hover:text-red-600">지우기</button>
+                                </div>
+                                <p class="text-[11px] text-gray-400 mt-1.5 leading-relaxed">파일을 선택하면 자동으로 크기를 줄여 저장합니다(3:4 권장). URL을 직접 넣어도 됩니다.</p>
+                                <input id="p_photo_url" placeholder="또는 https:// 이미지 주소 직접 입력" class="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 outline-none focus:border-brand text-xs">
+                            </div>
+                        </div>
+                    </div>
                     <label class="text-sm"><span class="text-xs font-semibold text-gray-500 dark:text-gray-400">희망 직무 <span class="text-gray-400 font-normal">(선택)</span></span>
                         <input id="p_job_target" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 outline-none focus:border-brand text-sm"></label>
                     <label class="text-sm"><span class="text-xs font-semibold text-gray-500 dark:text-gray-400">희망 연봉 <span class="text-gray-400 font-normal">(선택)</span></span>
@@ -381,11 +393,17 @@
                         <button data-del="${r.id}" class="px-3 py-1.5 text-xs rounded-lg border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40">삭제</button>
                     </div>
                 </div>`; }
-        const yearOf = (r)=>(r.period||'').slice(0,4);
+        // period → 포함 연도 목록(문자열, 범위 확장). 압축표기(230727)·범위(2021~2026)·'현재' 대응
+        const CURY=(new Date()).getFullYear();
+        const yearsOf=(period)=>{ const raw=String(period||''); if(!raw) return []; const s=normalizePeriod(period)||raw;
+            const ms=s.match(/\d{4}/g)||[]; let ys=ms.map(x=>parseInt(x,10)).filter(y=>y>=1990&&y<=2100);
+            if(/현재|진행|재직|now|present/i.test(raw)) ys.push(CURY);
+            if(!ys.length) return []; const lo=Math.min(...ys), hi=Math.max(...ys), out=[]; for(let y=lo;y<=hi;y++) out.push(String(y)); return out; };
+        const mainYear=(period)=>{ const ys=yearsOf(period); return ys.length?ys[0]:'미상'; };
         function applyView(){
             let rows=(window._careers||[]).slice(); const q=($("searchBox").value||'').trim().toLowerCase(), yr=$("yearFilter").value;
             if(q) rows=rows.filter(r=>((r.org||'')+' '+(r.title||'')+' '+(r.description||'')+' '+(r.badge||'')).toLowerCase().includes(q));
-            if(yr) rows=rows.filter(r=>yearOf(r)===yr);
+            if(yr) rows=rows.filter(r=>yearsOf(r.period).includes(yr));
             const cmps={ period_desc:(a,b)=>(b.period||'').localeCompare(a.period||''), period_asc:(a,b)=>(a.period||'').localeCompare(b.period||''),
                 sort_desc:(a,b)=>(b.sort_order||0)-(a.sort_order||0), sort_asc:(a,b)=>(a.sort_order||0)-(b.sort_order||0), org_asc:(a,b)=>(a.org||'').localeCompare(b.org||'','ko') };
             rows.sort(cmps[$("sortSel").value]||cmps.period_desc); return rows;
@@ -399,7 +417,7 @@
             list.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>del(b.dataset.del));
         }
         function populateYears(){
-            const years=[...new Set((window._careers||[]).map(yearOf).filter(Boolean))].sort().reverse();
+            const years=[...new Set([].concat(...(window._careers||[]).map(r=>yearsOf(r.period))))].sort().reverse();
             const sel=$("yearFilter"), cur=sel.value; sel.innerHTML='<option value="">전체 년도</option>'+years.map(y=>'<option value="'+y+'">'+y+'년</option>').join(""); if(years.includes(cur)) sel.value=cur;
         }
         async function loadCareers(){
@@ -517,7 +535,7 @@
             Chart.defaults.font.family = 'Pretendard, sans-serif';
             var PAL=['#2563eb','#7c3aed','#0d9488','#e11d48','#f59e0b','#0ea5e9','#10b981','#8b5cf6','#ec4899','#64748b','#f97316','#14b8a6'];
             var catC={}; data.forEach(function(r){ var c=(r.category||'기타'); catC[c]=(catC[c]||0)+1; });
-            var yrC={}; data.forEach(function(r){ var m=(r.period||'').match(/\d{4}/); var y=m?m[0]:'미상'; yrC[y]=(yrC[y]||0)+1; });
+            var yrC={}; data.forEach(function(r){ var y=mainYear(r.period); yrC[y]=(yrC[y]||0)+1; });
             var yrs=Object.keys(yrC).sort();
             var orgC={}; data.forEach(function(r){ var o=(r.org||'(미상)'); orgC[o]=(orgC[o]||0)+1; });
             var orgSorted=Object.entries(orgC).sort(function(a,b){ return b[1]-a[1]; });
@@ -569,9 +587,40 @@
                 set('p_name_ko',p.name_ko); set('p_name_en',p.name_en); set('p_name_hanja',p.name_hanja);
                 set('p_birth',p.birth?String(p.birth).slice(0,10):''); set('p_phone',p.phone); set('p_email',p.email);
                 set('p_address',p.address); set('p_photo_url',p.photo_url); set('p_job_target',p.job_target); set('p_salary_target',p.salary_target);
+                renderPhotoPreview();
                 _profileLoaded=true;
             }catch(e){ $("p_msg").textContent='불러오기 실패: '+(e.message||e); }
         }
+        // 사진 미리보기 렌더 (URL 또는 data: 값 반영)
+        function renderPhotoPreview(){
+            var box=$("p_photo_preview"), url=($("p_photo_url").value||'').trim();
+            if(box) box.innerHTML = url ? '<img src="'+url.replace(/"/g,'&quot;')+'" alt="사진" style="width:100%;height:100%;object-fit:cover">' : '사진';
+        }
+        // 파일 선택 → 브라우저에서 3:4로 축소 후 JPEG data URL로 임베드 (별도 저장소 불필요, PDF 새 창에서도 표시)
+        function fileToScaledDataURL(file, maxW, maxH){
+            return new Promise(function(resolve,reject){
+                var fr=new FileReader();
+                fr.onload=function(){ var img=new Image(); img.onload=function(){
+                    var r=Math.min(maxW/img.width, maxH/img.height, 1); var w=Math.round(img.width*r), h=Math.round(img.height*r);
+                    var c=document.createElement('canvas'); c.width=w; c.height=h; var ctx=c.getContext('2d');
+                    ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h); ctx.drawImage(img,0,0,w,h);
+                    resolve(c.toDataURL('image/jpeg',0.85)); };
+                    img.onerror=reject; img.src=fr.result; };
+                fr.onerror=reject; fr.readAsDataURL(file);
+            });
+        }
+        (function(){
+            var fin=$("p_photo_file"); if(fin) fin.addEventListener('change', async function(){
+                var f=fin.files&&fin.files[0]; if(!f) return;
+                $("p_msg").textContent='사진 처리 중…';
+                try{ var durl=await fileToScaledDataURL(f, 480, 640); $("p_photo_url").value=durl; renderPhotoPreview();
+                    var kb=Math.round(durl.length/1024); $("p_msg").textContent='✅ 사진 준비 완료(약 '+kb+'KB). 아래 저장을 눌러 주세요.'; }
+                catch(e){ $("p_msg").textContent='사진 처리 실패: '+(e.message||e); }
+                fin.value='';
+            });
+            var pc=$("p_photo_clear"); if(pc) pc.onclick=function(){ $("p_photo_url").value=''; renderPhotoPreview(); };
+            var pu=$("p_photo_url"); if(pu) pu.addEventListener('input', renderPhotoPreview);
+        })();
         $("profileForm").addEventListener('submit', async function(ev){
             ev.preventDefault();
             var v=function(id){ var el=$(id); return el&&el.value.trim()?el.value.trim():null; };
