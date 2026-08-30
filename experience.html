@@ -67,162 +67,77 @@
 
     <main class="pt-28 md:pt-32 min-h-[72vh]">
 <section id="experience" class="max-w-6xl mx-auto px-6 mb-32">
-            <div class="flex items-end justify-between mb-12 reveal">
-                <div>
-                    <h2 class="text-sm font-bold text-brand uppercase tracking-widest mb-3">Experience</h2>
-                    <p class="text-3xl md:text-4xl font-extrabold tracking-tight">2025년 대표 출강 이력</p>
-                </div>
-                <span class="hidden md:block text-sm text-gray-400 font-medium">기업 · 대학 · 정부 · 글로벌</span>
+            <div class="mb-8 reveal">
+                <h2 class="text-sm font-bold text-brand uppercase tracking-widest mb-3">Experience</h2>
+                <p class="text-3xl md:text-4xl font-extrabold tracking-tight">주요 이력</p>
             </div>
 
-            <div id="exp-featured" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <!-- 탭 -->
+            <div class="flex flex-wrap gap-2 mb-10 reveal">
+                <button type="button" data-tab="lecture"   class="exp-tab px-5 py-2.5 rounded-full text-sm font-bold border transition bg-gray-900 text-white border-gray-900">강의 · 출강</button>
+                <button type="button" data-tab="project"   class="exp-tab px-5 py-2.5 rounded-full text-sm font-bold border transition bg-white text-gray-600 border-gray-200 hover:border-gray-400">프로젝트 · 연구</button>
+                <button type="button" data-tab="education" class="exp-tab px-5 py-2.5 rounded-full text-sm font-bold border transition bg-white text-gray-600 border-gray-200 hover:border-gray-400">교육이수</button>
+                <button type="button" data-tab="career"    class="exp-tab px-5 py-2.5 rounded-full text-sm font-bold border transition bg-white text-gray-600 border-gray-200 hover:border-gray-400">경력</button>
+                <button type="button" data-tab="academic"  class="exp-tab px-5 py-2.5 rounded-full text-sm font-bold border transition bg-white text-gray-600 border-gray-200 hover:border-gray-400">학력</button>
+            </div>
 
-                <!-- 삼성전자 (실제 로고) -->
-                <div class="reveal group bg-white rounded-3xl border border-gray-100 p-7 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                    <div class="flex items-start justify-between mb-5">
-                        <div class="h-12 px-3 rounded-2xl bg-white border border-gray-100 shadow-sm flex items-center">
-                            <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjwhLS0gQ3JlYXRlZCB3aXRoIElua3NjYXBlIChodHRwOi8vd3d3Lmlua3NjYXBlLm9yZy8pIC0tPgoKPHN2ZwogICB2ZXJzaW9uPSIxLjEiCiAgIGlkPSJzdmcyIgogICB4bWw6c3BhY2U9InByZXNlcnZlIgogICB3aWR0aD0iNzA1MS40MDIzIgogICBoZWlnaHQ9IjEwODAiCiAgIHZpZXdCb3g9IjAgMCA3MDUxLjQwMjQgMTA4MCIKICAgc29kaXBvZGk6ZG9jbmFtZT0iU2Ftc3VuZ193b3JkbWFyay5zdmciCiAgIGlua3NjYXBlOnZlcnNpb249IjEuMSAoYzY4ZTIyYzM4NywgMjAyMS0wNS0yMykiCiAgIHhtbG5zOmlua3NjYXBlPSJodHRwOi8vd3d3Lmlua3NjYXBlLm9yZy9uYW1lc3BhY2VzL2lua3NjYXBlIgogICB4bWxuczpzb2RpcG9kaT0iaHR0cDovL3NvZGlwb2RpLnNvdXJjZWZvcmdlLm5ldC9EVEQvc29kaXBvZGktMC5kdGQiCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sbnM6c3ZnPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHNvZGlwb2RpOm5hbWVkdmlldwogICAgIGlkPSJuYW1lZHZpZXcxMSIKICAgICBwYWdlY29sb3I9IiNmZmZmZmYiCiAgICAgYm9yZGVyY29sb3I9IiM2NjY2NjYiCiAgICAgYm9yZGVyb3BhY2l0eT0iMS4wIgogICAgIGlua3NjYXBlOnBhZ2VzaGFkb3c9IjIiCiAgICAgaW5rc2NhcGU6cGFnZW9wYWNpdHk9IjAuMCIKICAgICBpbmtzY2FwZTpwYWdlY2hlY2tlcmJvYXJkPSIwIgogICAgIHNob3dncmlkPSJmYWxzZSIKICAgICBmaXQtbWFyZ2luLXRvcD0iMCIKICAgICBmaXQtbWFyZ2luLWxlZnQ9IjAiCiAgICAgZml0LW1hcmdpbi1yaWdodD0iMCIKICAgICBmaXQtbWFyZ2luLWJvdHRvbT0iMCIKICAgICBpbmtzY2FwZTp6b29tPSIwLjA1OTgyOTQ2NSIKICAgICBpbmtzY2FwZTpjeD0iMjg0OS43NjY0IgogICAgIGlua3NjYXBlOmN5PSIxNDI5LjA2MTciCiAgICAgaW5rc2NhcGU6d2luZG93LXdpZHRoPSIxOTIwIgogICAgIGlua3NjYXBlOndpbmRvdy1oZWlnaHQ9IjEwMTciCiAgICAgaW5rc2NhcGU6d2luZG93LXg9IjE5MTIiCiAgICAgaW5rc2NhcGU6d2luZG93LXk9Ii04IgogICAgIGlua3NjYXBlOndpbmRvdy1tYXhpbWl6ZWQ9IjEiCiAgICAgaW5rc2NhcGU6Y3VycmVudC1sYXllcj0ic3ZnMiIgLz48ZGVmcwogICAgIGlkPSJkZWZzNiI+PGNsaXBQYXRoCiAgICAgICBjbGlwUGF0aFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIKICAgICAgIGlkPSJjbGlwUGF0aDE2Ij48cGF0aAogICAgICAgICBkPSJNIDAsMTY2Ljg4NSBIIDYyOC4yMzggViAwIEggMCBaIgogICAgICAgICBpZD0icGF0aDE0IiAvPjwvY2xpcFBhdGg+PC9kZWZzPjxnCiAgICAgaWQ9Imc4IgogICAgIHRyYW5zZm9ybT0ibWF0cml4KDEyLjk0NDA1MywwLDAsLTEyLjk0NDA1MywtNTQwLjAzNjI1LDE2MjAuMDIzMykiPjxnCiAgICAgICBpZD0iZzEwIj48ZwogICAgICAgICBpZD0iZzEyIgogICAgICAgICBjbGlwLXBhdGg9InVybCgjY2xpcFBhdGgxNikiPjxnCiAgICAgICAgICAgaWQ9ImcxOCIKICAgICAgICAgICB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1NTguOTMyOCw4OC41MDk4KSI+PHBhdGgKICAgICAgICAgICAgIGQ9Im0gMCwwIHYgLTExLjM1OCBoIDcuOTgyIHYgLTExLjI2OSBjIDAuMDI1LC0xLjAwNyAtMC4wMywtMi4wOTMgLTAuMjAzLC0yLjk2MiAtMC4zMTcsLTIuMTAyIC0yLjMxNCwtNS42ODEgLTcuOTgsLTUuNjgxIC01LjYzMiwwIC03LjU5MywzLjU3OSAtNy45MzMsNS42ODEgLTAuMTQzLDAuODY5IC0wLjIwNCwxLjk1NSAtMC4yMDQsMi45NjIgdiAzNS41OTMgYyAwLDEuMjU5IDAuMDg1LDIuNjM3IDAuMzUyLDMuNjggMC4zODcsMS44OTcgMi4wNjgsNS42MzggNy43NDMsNS42MzggNS45NTcsMCA3LjQ0NCwtMy45NDQgNy43ODUsLTUuNjM4IDAuMjI0LC0xLjEyMiAwLjIzNywtMy4wMDQgMC4yMzcsLTMuMDA0IFYgOS4zMiBoIDE5LjYxMyB2IDIuNTU1IGMgMCwwIDAuMDg5LDIuNjY2IC0wLjE0OSw1LjE1NCBDIDI1Ljc2OSwzMS42MzggMTMuNzMyLDM2LjI2IC0wLjA3LDM2LjI2IGMgLTEzLjgyNywwIC0yNS42MiwtNC42NjUgLTI3LjMzOCwtMTkuMjMxIC0wLjE1NSwtMS4zMzIgLTAuMzkyLC0zLjcyOCAtMC4zOTIsLTUuMTU0IHYgLTMyLjc0MiBjIDAsLTEuNDI2IDAuMDQ2LC0yLjUzIDAuMzEsLTUuMTM2IDEuMjgsLTE0LjIwNyAxMy41OTMsLTE5LjI0MyAyNy4zNjUsLTE5LjI0MyAxMy44NTcsMCAyNi4wODUsNS4wMzYgMjcuMzg3LDE5LjI0MyAwLjIzMSwyLjYwNiAwLjI1NSwzLjcxIDAuMjg2LDUuMTM2IFYgMCBaIG0gLTEzNS4yMzUsMzQuMTY1IGggLTE5LjY5NiB2IC01Ny42MTMgYyAwLjAzMSwtMS4wMDQgMCwtMi4xMzIgLTAuMTczLC0yLjk1OSAtMC40MTEsLTEuOTM0IC0yLjA1LC01LjY1NiAtNy40ODQsLTUuNjU2IC01LjM2NCwwIC03LjA0NiwzLjcyMiAtNy40MjYsNS42NTYgLTAuMTk3LDAuODI3IC0wLjIyMiwxLjk1NSAtMC4xOTcsMi45NTkgdiA1Ny42MTMgaCAtMTkuNjkgViAtMjEuNjYgYyAtMC4wMjUsLTEuNDM5IDAuMDg4LC00LjM3OSAwLjE3MywtNS4xNDkgMS4zNTksLTE0LjU0NyAxMi44MjQsLTE5LjI3IDI3LjE0LC0xOS4yNyAxNC4zNDQsMCAyNS44MDIsNC43MjMgMjcuMTg2LDE5LjI3IDAuMTA5LDAuNzcgMC4yNTIsMy43MSAwLjE2Nyw1LjE0OSB6IG0gLTE4MC45NywwIC05LjgyNSwtNjAuODc2IC05LjgxOSw2MC44NzYgaCAtMzEuNzcxIGwgLTEuNjg1LC03Ny44NzggaCAxOS40NjQgbCAwLjUyNyw3Mi4wOTQgMTMuMzkyLC03Mi4wOTQgaCAxOS43NDggbCAxMy40MDQsNzIuMDk0IDAuNTI5LC03Mi4wOTQgaCAxOS41MTMgbCAtMS43NDIsNzcuODc4IHogbSAtMTE3LjYzMSwwIC0xNC40MjYsLTc3Ljg3OCBoIDIxLjAzNyBsIDEwLjg3MSw3Mi4wOTQgMTAuNjEsLTcyLjA5NCBoIDIwLjg5MSBsIC0xNC4zNjYsNzcuODc4IHogbSAzNjcuNDM1LC02Mi43MDEgLTE4LjM0LDYyLjcwMSBoIC0yOC45IHYgLTc3LjA2NiBoIDE5LjExOCBsIC0xLjExLDY0LjcwNyAxOS42OTYsLTY0LjcwNyBoIDI3LjcxNyB2IDc3LjA2NiBoIC0xOS4yNDMgeiBtIC0xNzYuODM4LDQyLjQzMyBjIC0wLjM0NiwxLjUzOCAtMC4yNDYsMy4xNzIgLTAuMDY3LDQuMDI2IDAuNTU3LDIuNDkzIDIuMjMyLDUuMjEyIDcuMDU4LDUuMjEyIDQuNDk4LDAgNy4xMzUsLTIuODA0IDcuMTM1LC03LjAxMiB2IC00Ljc2MiBoIDE5LjIgdiA1LjQyOCBjIDAsMTYuNzggLTE1LjA0NCwxOS40MTYgLTI1LjkzNiwxOS40MTYgLTEzLjcxOCwwIC0yNC45MjEsLTQuNTIyIC0yNi45NjcsLTE3LjE0OCAtMC41NDEsLTMuNDM2IC0wLjY3NSwtNi40ODYgMC4xODYsLTEwLjM3OCAzLjMzNiwtMTUuNzQzIDMwLjc0MywtMjAuMzEgMzQuNzIxLC0zMC4yNjYgMC43MDIsLTEuODg2IDAuNTAxLC00LjI5MSAwLjE0MywtNS43MDggLTAuNTk2LC0yLjU5MSAtMi4zMzksLTUuMTk3IC03LjUwNiwtNS4xOTcgLTQuODQ2LDAgLTcuNzYzLDIuNzg2IC03Ljc2Myw2Ljk4NSBsIC0wLjAwNiw3LjQ3NCBoIC0yMC42NjYgdiAtNS45NDEgYyAwLC0xNy4yMTUgMTMuNDg0LC0yMi40MDkgMjguMDA3LC0yMi40MDkgMTMuOTA5LDAgMjUuMzk3LDQuNzUzIDI3LjI0LDE3LjYzNyAwLjg3OSw2LjY1NyAwLjIxNiwxMC45OTMgLTAuMTM3LDEyLjYyNiAtMy4yMiwxNi4xNDcgLTMyLjQzMSwyMS4wMDQgLTM0LjY0MiwzMC4wMTcgbSAtMjUzLjI3MywwLjE5MSBjIC0wLjM3NywxLjU3IC0wLjI4OSwzLjIyNyAtMC4wNzksNC4wOTEgMC41MzIsMi40ODEgMi4yMTcsNS4yNDggNy4xMjgsNS4yNDggNC41NTUsMCA3LjIzNywtMi44MzEgNy4yMzcsLTcuMDczIHYgLTQuODIgaCAxOS40MjUgdiA1LjQ3MSBjIDAsMTYuOTQxIC0xNS4yNzQsMTkuNjQxIC0yNi4yODUsMTkuNjQxIC0xMy44MzMsMCAtMjUuMTM2LC00LjU5MiAtMjcuMjA0LC0xNy4zMDkgLTAuNTY2LC0zLjQ5MSAtMC42NjMsLTYuNTYyIDAuMTU1LC0xMC40OTcgMy4zNzIsLTE1LjkyMiAzMS4wNSwtMjAuNTI2IDM1LjA3NywtMzAuNjAxIDAuNzU0LC0xLjg3MyAwLjUyNiwtNC4yNzggMC4xNTIsLTUuNzUgLTAuNjM5LC0yLjYxOCAtMi4zOTYsLTUuMjYxIC03LjYwNiwtNS4yNjEgLTQuODY1LDAgLTcuNzc1LDIuODM0IC03Ljc3NSw3LjA5MSBsIC0wLjAyNyw3LjQ5NCBoIC0yMC44OTggdiAtNS45NTUgYyAwLC0xNy40MTIgMTMuNjc1LC0yMi42NDggMjguMzExLC0yMi42NDggMTQuMDcxLDAgMjUuNjI2LDQuNzk1IDI3LjUxMSwxNy44MjggMC45MzcsNi43MTggMC4yMzQsMTEuMDkgLTAuMDgyLDEyLjc0OCAtMy4yODcsMTYuMzQ1IC0zMi44MjMsMjEuMTg2IC0zNS4wNCwzMC4zMDIiCiAgICAgICAgICAgICBzdHlsZT0iZmlsbDojMTQyOGEwO2ZpbGwtb3BhY2l0eToxO2ZpbGwtcnVsZTpub256ZXJvO3N0cm9rZTpub25lIgogICAgICAgICAgICAgaWQ9InBhdGgyMCIgLz48L2c+PC9nPjwvZz48L2c+PC9zdmc+Cg==" alt="삼성전자" class="h-3.5 w-auto">
-                        </div>
-                        <span class="text-xs font-semibold text-gray-400">2025.03</span>
-                    </div>
-                    <h3 class="text-lg font-bold mb-1">삼성전자 (구미)</h3>
-                    <p class="text-sm text-brand font-semibold mb-2">머신러닝 · 파워쿼리 실무과정</p>
-                    <p class="text-sm text-gray-500 leading-relaxed">사내 외부 강사로 머신러닝 실무(4일)와 파워쿼리 실무(2일) 데이터 분석 과정 진행</p>
+            <!-- 강의 · 출강 -->
+            <div id="panel-lecture" class="exp-panel">
+                <div class="flex items-end justify-between mb-8 reveal">
+                    <p class="text-xl md:text-2xl font-extrabold tracking-tight">대표 출강 이력</p>
+                    <span class="hidden md:block text-sm text-gray-400 font-medium">기업 · 대학 · 정부 · 협회</span>
                 </div>
-
-                <!-- 서울대학교 -->
-                <div class="reveal group bg-white rounded-3xl border border-gray-100 p-7 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                    <div class="flex items-start justify-between mb-5">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white font-extrabold text-sm tracking-tight shadow-lg shadow-slate-900/20">SNU</div>
-                        <span class="text-xs font-semibold text-gray-400">2025.08</span>
-                    </div>
-                    <h3 class="text-lg font-bold mb-1">서울대학교</h3>
-                    <p class="text-sm text-brand font-semibold mb-2">ChatGPT 활용 파이썬 프로그래밍</p>
-                    <p class="text-sm text-gray-500 leading-relaxed">커서(Cursor)·LLM 에이전트·바이브코딩을 활용한 실전 파이썬 개발 특강</p>
-                </div>
-
-                <!-- 과기정통부 x NIPA -->
-                <div class="reveal group bg-white rounded-3xl border border-gray-100 p-7 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                    <div class="flex items-start justify-between mb-5">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-extrabold text-sm tracking-tight shadow-lg shadow-blue-600/20">NIPA</div>
-                        <span class="text-xs font-semibold text-gray-400">2025.09</span>
-                    </div>
-                    <h3 class="text-lg font-bold mb-1">과학기술정보통신부 × NIPA</h3>
-                    <p class="text-sm text-brand font-semibold mb-2">디지털 전환 핵심역량 강화 지원사업</p>
-                    <p class="text-sm text-gray-500 leading-relaxed">정보통신산업진흥원과 함께 진행한 정부 디지털 전환 인력 양성 외부 강사</p>
-                </div>
-
-                <!-- 국가데이터처 -->
-                <div class="reveal group bg-white rounded-3xl border border-gray-100 p-7 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                    <div class="flex items-start justify-between mb-5">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white font-extrabold text-xs tracking-tight shadow-lg shadow-teal-500/20">DATA</div>
-                        <span class="text-xs font-semibold text-gray-400">2025.09</span>
-                    </div>
-                    <h3 class="text-lg font-bold mb-1">국가데이터처 <span class="ml-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full align-middle">글로벌</span></h3>
-                    <p class="text-sm text-brand font-semibold mb-2">파이썬 통계분석 실무</p>
-                    <p class="text-sm text-gray-500 leading-relaxed">우즈베키스탄 현지 대상 파이썬 기반 통계분석 실무 교육 진행</p>
-                </div>
-
-                <!-- LIG넥스원 -->
-                <div class="reveal group bg-white rounded-3xl border border-gray-100 p-7 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                    <div class="flex items-start justify-between mb-5">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-600 to-blue-700 flex items-center justify-center text-white font-extrabold text-sm tracking-tight shadow-lg shadow-sky-600/20">LIG</div>
-                        <span class="text-xs font-semibold text-gray-400">2025.08</span>
-                    </div>
-                    <h3 class="text-lg font-bold mb-1">LIG넥스원 × 메가넥스트</h3>
-                    <p class="text-sm text-brand font-semibold mb-2">생성형 AI R&D 활용법</p>
-                    <p class="text-sm text-gray-500 leading-relaxed">연구개발 현장에 생성형 AI를 접목하는 R&D 실무 활용 특강</p>
-                </div>
-
-                <!-- KCA -->
-                <div class="reveal group bg-white rounded-3xl border border-gray-100 p-7 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                    <div class="flex items-start justify-between mb-5">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-extrabold text-sm tracking-tight shadow-lg shadow-violet-500/20">KCA</div>
-                        <span class="text-xs font-semibold text-gray-400">2025.03</span>
-                    </div>
-                    <h3 class="text-lg font-bold mb-1">한국방송통신전파진흥원</h3>
-                    <p class="text-sm text-brand font-semibold mb-2">딥브레인 AI STUDIOS · 영상 제작</p>
-                    <p class="text-sm text-gray-500 leading-relaxed">딥브레인 AI STUDIOS 교육 및 AI 영상 제작 컨설팅 외부 강사</p>
+                <div id="exp-featured" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+                <div class="mt-10">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-5 reveal">그 외 주요 출강 · 년도별</p>
+                    <div id="exp-extra" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
                 </div>
             </div>
 
-            <!-- 그 외 2025 출강 -->
-            <div class="mt-8">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-5 reveal">그 외 주요 출강 · 년도별</p>
-                <div id="exp-extra" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <!-- 프로젝트 · 연구 -->
+            <div id="panel-project" class="exp-panel hidden">
+                <p class="text-xl md:text-2xl font-extrabold tracking-tight mb-8 reveal">프로젝트 · 연구</p>
+                <div id="exp-projects" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+                <p id="proj-empty" class="text-sm text-gray-400 hidden">등록된 프로젝트가 없습니다.</p>
+            </div>
 
-                    <div class="reveal flex items-center gap-3.5 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
-                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-rose-500 to-red-500 flex items-center justify-center text-white font-bold text-base shrink-0 shadow-sm">빙</div>
-                        <div class="min-w-0">
-                            <div class="font-semibold text-sm leading-tight">빙그레</div>
-                            <div class="text-xs text-gray-500 mt-0.5 leading-snug">독립운동사 AI 영상 제작</div>
-                        </div>
-                    </div>
+            <!-- 교육이수 -->
+            <div id="panel-education" class="exp-panel hidden">
+                <p class="text-xl md:text-2xl font-extrabold tracking-tight mb-8 reveal">교육이수</p>
+                <div id="exp-education" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+                <p id="edu-empty" class="text-sm text-gray-400 hidden">등록된 교육이수 내역이 없습니다.</p>
+            </div>
 
-                    <div class="reveal flex items-center gap-3.5 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
-                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-600 to-blue-700 flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm">DA</div>
-                        <div class="min-w-0">
-                            <div class="font-semibold text-sm leading-tight">동아대학교</div>
-                            <div class="text-xs text-gray-500 mt-0.5 leading-snug">로컬 LLM 구축 특강</div>
-                        </div>
-                    </div>
+            <!-- 경력 (개발직 · 정규직) -->
+            <div id="panel-career" class="exp-panel hidden">
+                <p class="text-xl md:text-2xl font-extrabold tracking-tight mb-8 reveal">경력 · 개발직/정규직</p>
+                <div class="space-y-2.5">
+                    <div class="reveal flex items-start gap-4 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md transition"><span class="text-xs font-semibold text-gray-400 shrink-0 w-32 md:w-40 pt-0.5">2022.03 ~ 현재</span><div class="min-w-0"><div class="font-bold text-sm leading-tight">AI인터시스 <span class="text-brand font-semibold">· 대표 이사</span></div><div class="text-xs text-gray-500 mt-0.5 leading-snug">빅데이터 · 머신러닝 · 챗봇 · 웹&amp;앱 · 유튜브 · 구글 애널리틱스 · ChatGPT 시스템 개발(sLLM)</div></div></div>
+                    <div class="reveal flex items-start gap-4 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md transition"><span class="text-xs font-semibold text-gray-400 shrink-0 w-32 md:w-40 pt-0.5">2020.08 ~ 현재</span><div class="min-w-0"><div class="font-bold text-sm leading-tight">㈜BN시스템 <span class="text-brand font-semibold">· 개발 이사</span></div><div class="text-xs text-gray-500 mt-0.5 leading-snug">풀 스택 홈페이지 개발</div></div></div>
+                    <div class="reveal flex items-start gap-4 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md transition"><span class="text-xs font-semibold text-gray-400 shrink-0 w-32 md:w-40 pt-0.5">2019.07 ~ 현재</span><div class="min-w-0"><div class="font-bold text-sm leading-tight">㈜타임크래프트 <span class="text-brand font-semibold">· 공동 대표(법인)</span></div><div class="text-xs text-gray-500 mt-0.5 leading-snug">온라인 콘텐츠 제작 &amp; 안드로이드 어플 개발</div></div></div>
+                    <div class="reveal flex items-start gap-4 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md transition"><span class="text-xs font-semibold text-gray-400 shrink-0 w-32 md:w-40 pt-0.5">2019.07 ~ 현재</span><div class="min-w-0"><div class="font-bold text-sm leading-tight">이피셜리치 <span class="text-brand font-semibold">· 사외 이사</span></div><div class="text-xs text-gray-500 mt-0.5 leading-snug">온라인 콘텐츠 제작 &amp; 안드로이드 어플 개발</div></div></div>
+                    <div class="reveal flex items-start gap-4 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md transition"><span class="text-xs font-semibold text-gray-400 shrink-0 w-32 md:w-40 pt-0.5">2020.01 ~ 2020.03</span><div class="min-w-0"><div class="font-bold text-sm leading-tight">BN시스템 <span class="text-brand font-semibold">· 개발 팀장</span></div><div class="text-xs text-gray-500 mt-0.5 leading-snug">애니메이션 공모전 웹 사이트 개발</div></div></div>
+                    <div class="reveal flex items-start gap-4 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md transition"><span class="text-xs font-semibold text-gray-400 shrink-0 w-32 md:w-40 pt-0.5">2019.07 ~ 2020.01</span><div class="min-w-0"><div class="font-bold text-sm leading-tight">빈베이스㈜ <span class="text-brand font-semibold">· 프리랜서(과장)</span></div><div class="text-xs text-gray-500 mt-0.5 leading-snug">암호화폐 전자 지갑 · 블록체인 · 거래소 개발 및 서비스</div></div></div>
+                    <div class="reveal flex items-start gap-4 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md transition"><span class="text-xs font-semibold text-gray-400 shrink-0 w-32 md:w-40 pt-0.5">2017.09 ~ 2019.05</span><div class="min-w-0"><div class="font-bold text-sm leading-tight">애니스소프트 <span class="text-brand font-semibold">· 프리랜서(차장)</span></div><div class="text-xs text-gray-500 mt-0.5 leading-snug">라이프코어 인스트루먼트㈜ 이온수기 클라우드 시스템 구축(AWS · 젠킨스 · 플러터 · PHP 관리자 웹)</div></div></div>
+                    <div class="reveal flex items-start gap-4 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md transition"><span class="text-xs font-semibold text-gray-400 shrink-0 w-32 md:w-40 pt-0.5">2018.08 ~ 2018.09</span><div class="min-w-0"><div class="font-bold text-sm leading-tight">애니스소프트 <span class="text-brand font-semibold">· 프리랜서(과장)</span></div><div class="text-xs text-gray-500 mt-0.5 leading-snug">4개 선물회사(현대·삼성·NH·유진) 위험기반 자금세탁방지 체계 구축</div></div></div>
+                    <div class="reveal flex items-start gap-4 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md transition"><span class="text-xs font-semibold text-gray-400 shrink-0 w-32 md:w-40 pt-0.5">2013.03 ~ 2016.04</span><div class="min-w-0"><div class="font-bold text-sm leading-tight">㈜서울스탠다드 <span class="text-brand font-semibold">· 주임(팀장)</span></div><div class="text-xs text-gray-500 mt-0.5 leading-snug">품질분석 &amp; SW 개발</div></div></div>
+                    <div class="reveal flex items-start gap-4 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md transition"><span class="text-xs font-semibold text-gray-400 shrink-0 w-32 md:w-40 pt-0.5">2011.08 ~ 2013.01</span><div class="min-w-0"><div class="font-bold text-sm leading-tight">코리아로지스 <span class="text-brand font-semibold">· 대리(팀원)</span></div><div class="text-xs text-gray-500 mt-0.5 leading-snug">응용 Application(안드로이드) 개발</div></div></div>
+                    <div class="reveal flex items-start gap-4 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md transition"><span class="text-xs font-semibold text-gray-400 shrink-0 w-32 md:w-40 pt-0.5">2011.01 ~ 2011.04</span><div class="min-w-0"><div class="font-bold text-sm leading-tight">NetgeneTech <span class="text-brand font-semibold">· 연구원(팀원)</span></div><div class="text-xs text-gray-500 mt-0.5 leading-snug">LG U+ 장비 운용</div></div></div>
+                    <div class="reveal flex items-start gap-4 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md transition"><span class="text-xs font-semibold text-gray-400 shrink-0 w-32 md:w-40 pt-0.5">2010.02 ~ 2010.05</span><div class="min-w-0"><div class="font-bold text-sm leading-tight">노츠㈜ <span class="text-brand font-semibold">· 연구원(팀원)</span></div><div class="text-xs text-gray-500 mt-0.5 leading-snug">Software Quality Test</div></div></div>
+                    <div class="reveal flex items-start gap-4 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md transition"><span class="text-xs font-semibold text-gray-400 shrink-0 w-32 md:w-40 pt-0.5">2008.12 ~ 2009.12</span><div class="min-w-0"><div class="font-bold text-sm leading-tight">UMID <span class="text-brand font-semibold">· 주임(팀원)</span></div><div class="text-xs text-gray-500 mt-0.5 leading-snug">HW / SW 연구 지원</div></div></div>
+                </div>
+            </div>
 
-                    <div class="reveal flex items-center gap-3.5 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
-                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-sky-500 to-cyan-600 flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm">인천</div>
-                        <div class="min-w-0">
-                            <div class="font-semibold text-sm leading-tight">인천광역시교육청</div>
-                            <div class="text-xs text-gray-500 mt-0.5 leading-snug">AI·에듀테크 활용 특강</div>
-                        </div>
-                    </div>
-
-                    <div class="reveal flex items-center gap-3.5 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
-                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm">새싹</div>
-                        <div class="min-w-0">
-                            <div class="font-semibold text-sm leading-tight">새싹 동작캠퍼스</div>
-                            <div class="text-xs text-gray-500 mt-0.5 leading-snug">생성형 AI 실무 자동화</div>
-                        </div>
-                    </div>
-
-                    <div class="reveal flex items-center gap-3.5 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
-                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm">성남</div>
-                        <div class="min-w-0">
-                            <div class="font-semibold text-sm leading-tight">성남 시민 창업대학</div>
-                            <div class="text-xs text-gray-500 mt-0.5 leading-snug">AI툴 활용 사업 기획</div>
-                        </div>
-                    </div>
-
-                    <div class="reveal flex items-center gap-3.5 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
-                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm">경기</div>
-                        <div class="min-w-0">
-                            <div class="font-semibold text-sm leading-tight">경기 메타버스 캠퍼스</div>
-                            <div class="text-xs text-gray-500 mt-0.5 leading-snug">생성형 AI 콘텐츠 제작</div>
-                        </div>
-                    </div>
-
-                    <div class="reveal flex items-center gap-3.5 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
-                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-slate-600 to-slate-800 flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm">NSU</div>
-                        <div class="min-w-0">
-                            <div class="font-semibold text-sm leading-tight">남서울대학교</div>
-                            <div class="text-xs text-gray-500 mt-0.5 leading-snug">GraphRAG + 온톨로지 세미나</div>
-                        </div>
-                    </div>
-
-                    <div class="reveal flex items-center gap-3.5 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
-                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm">통계</div>
-                        <div class="min-w-0">
-                            <div class="font-semibold text-sm leading-tight">통계청 × 한경대학교</div>
-                            <div class="text-xs text-gray-500 mt-0.5 leading-snug">파이썬 통계분석 실무</div>
-                        </div>
-                    </div>
-
-                    <div class="reveal flex items-center gap-3.5 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
-                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm">호서</div>
-                        <div class="min-w-0">
-                            <div class="font-semibold text-sm leading-tight">호서대학원</div>
-                            <div class="text-xs text-gray-500 mt-0.5 leading-snug">AI로 논문 쓰기</div>
-                        </div>
-                    </div>
-
+            <!-- 학력 -->
+            <div id="panel-academic" class="exp-panel hidden">
+                <p class="text-xl md:text-2xl font-extrabold tracking-tight mb-8 reveal">학력</p>
+                <div class="space-y-2.5">
+                    <div class="reveal flex items-start gap-4 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md transition"><span class="text-xs font-semibold text-gray-400 shrink-0 w-32 md:w-44 pt-0.5">2021.03 ~ 2024.02</span><div class="min-w-0"><div class="font-bold text-sm leading-tight">호서대학교 벤처대학원 <span class="text-brand font-semibold">· 융합공학 (박사)</span></div><div class="text-xs text-gray-500 mt-0.5 leading-snug">서울 · 졸업예정</div></div></div>
+                    <div class="reveal flex items-start gap-4 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md transition"><span class="text-xs font-semibold text-gray-400 shrink-0 w-32 md:w-44 pt-0.5">2019.03 ~ 2021.02</span><div class="min-w-0"><div class="font-bold text-sm leading-tight">세종대학교 MBA <span class="text-brand font-semibold">· 빅데이터 경영학 (석사)</span></div><div class="text-xs text-gray-500 mt-0.5 leading-snug">서울</div></div></div>
+                    <div class="reveal flex items-start gap-4 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md transition"><span class="text-xs font-semibold text-gray-400 shrink-0 w-32 md:w-44 pt-0.5">2013.03 ~ 2015.02</span><div class="min-w-0"><div class="font-bold text-sm leading-tight">경희사이버대학교 <span class="text-brand font-semibold">· 디지털 미디어 공학 (학사)</span></div><div class="text-xs text-gray-500 mt-0.5 leading-snug">서울</div></div></div>
+                    <div class="reveal flex items-start gap-4 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md transition"><span class="text-xs font-semibold text-gray-400 shrink-0 w-32 md:w-44 pt-0.5">2003.03 ~ 2009.02</span><div class="min-w-0"><div class="font-bold text-sm leading-tight">숭실대학교 <span class="text-brand font-semibold">· 정보통신 전자공학 (학사)</span></div><div class="text-xs text-gray-500 mt-0.5 leading-snug">서울</div></div></div>
+                    <div class="reveal flex items-start gap-4 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md transition"><span class="text-xs font-semibold text-gray-400 shrink-0 w-32 md:w-44 pt-0.5">2001.03 ~ 2003.02</span><div class="min-w-0"><div class="font-bold text-sm leading-tight">부천대학교 <span class="text-brand font-semibold">· 전자공학부 (전문학사)</span></div><div class="text-xs text-gray-500 mt-0.5 leading-snug">경기 부천시</div></div></div>
+                    <div class="reveal flex items-start gap-4 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md transition"><span class="text-xs font-semibold text-gray-400 shrink-0 w-32 md:w-44 pt-0.5">1998.03 ~ 2001.02</span><div class="min-w-0"><div class="font-bold text-sm leading-tight">원미고등학교 <span class="text-brand font-semibold">· 이공계</span></div><div class="text-xs text-gray-500 mt-0.5 leading-snug">경기 부천시</div></div></div>
                 </div>
             </div>
         </section>
@@ -266,6 +181,15 @@
         });
     </script>
     <script>
+    // 탭 전환 (데이터 로드와 무관하게 항상 동작 — 경력·학력은 정적 콘텐츠)
+    (function(){
+        var tabs=document.querySelectorAll('.exp-tab'); if(!tabs.length) return;
+        var ON='exp-tab px-5 py-2.5 rounded-full text-sm font-bold border transition bg-gray-900 text-white border-gray-900';
+        var OFF='exp-tab px-5 py-2.5 rounded-full text-sm font-bold border transition bg-white text-gray-600 border-gray-200 hover:border-gray-400';
+        tabs.forEach(function(t){ t.onclick=function(){ tabs.forEach(function(x){ x.className=OFF; }); t.className=ON;
+            var k=t.getAttribute('data-tab'); ['lecture','project','education','career','academic'].forEach(function(p){ var el=document.getElementById('panel-'+p); if(el) el.classList.toggle('hidden', p!==k); }); }; });
+    })();
+
     (async function(){
       var cfg = window.SUPABASE_CONFIG||{};
       if(!cfg.url || !cfg.anonKey || cfg.url.indexOf('PASTE_')>=0) return;
@@ -337,9 +261,20 @@
           +'<div class="w-11 h-11 rounded-xl bg-gradient-to-br '+grad(r)+' flex items-center justify-center text-white font-bold text-base shrink-0 shadow-sm">'+badge(r)+'</div>'
           +'<div class="min-w-0"><div class="font-semibold text-sm leading-tight">'+esc(r.org)+'</div>'
           +'<div class="text-xs text-gray-500 mt-0.5 leading-snug">'+(esc(r.title)||esc(r.description)||'')+'</div></div></div>'; };
-        var feat = data.filter(function(r){return r.featured;});
-        var extra = data.filter(function(r){return !r.featured;});
-        var fe = document.getElementById('exp-featured'); if(feat.length && fe) fe.innerHTML = feat.map(card).join('');
+        // 날짜 내림차순 정렬 키 (period → YYYYMMDD 숫자)
+        var dkey = function(r){ var m=(r.period||'').match(/(\d{4})[.\-]?(\d{1,2})?[.\-]?(\d{1,2})?/); if(!m) return 0; return parseInt(m[1])*10000 + (m[2]?parseInt(m[2]):0)*100 + (m[3]?parseInt(m[3]):0); };
+        var byDateDesc = function(a,b){ return dkey(b)-dkey(a); };
+        var kindOf = function(r){ return (r.kind||'lecture'); };
+        var lectures  = data.filter(function(r){return kindOf(r)==='lecture';});
+        var projects  = data.filter(function(r){return kindOf(r)==='project';}).sort(byDateDesc);
+        var education = data.filter(function(r){return kindOf(r)==='education';}).sort(byDateDesc);
+        // 강의: 대표(featured, 최신순) + 그 외(년도별)
+        var feat  = lectures.filter(function(r){return r.featured;}).sort(byDateDesc);
+        var extra = lectures.filter(function(r){return !r.featured;});
+        var fe = document.getElementById('exp-featured'); if(fe) fe.innerHTML = feat.map(card).join('');
+        var pj = document.getElementById('exp-projects'); if(pj){ pj.innerHTML = projects.map(card).join(''); var pe=document.getElementById('proj-empty'); if(pe) pe.classList.toggle('hidden', projects.length>0); }
+        var edu = document.getElementById('exp-education'); if(edu){ edu.innerHTML = education.map(card).join(''); var ee=document.getElementById('edu-empty'); if(ee) ee.classList.toggle('hidden', education.length>0); }
+        // (탭 전환은 아래 독립 블록에서 처리 — 데이터 로드와 무관)
         var ex = document.getElementById('exp-extra');
         if(ex){
             var CUR=(new Date()).getFullYear();
