@@ -169,43 +169,6 @@
             var k=t.getAttribute('data-tab'); ['lecture','project','education','career','academic'].forEach(function(p){ var el=document.getElementById('panel-'+p); if(el) el.classList.toggle('hidden', p!==k); }); }; });
     })();
 
-    // 경력·학력 정적 렌더 (데이터 로드와 무관 · 대표 카드와 동일 톤, 기간은 원문 유지)
-    (function(){
-        var esc=function(s){ return (s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); };
-        var card2=function(r){ return '<div class="reveal show group bg-white rounded-3xl border border-gray-100 p-7 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full">'
-          +'<div class="flex items-start justify-between gap-4 mb-5"><div class="w-12 h-12 shrink-0 rounded-2xl bg-gradient-to-br '+(esc(r.color)||'from-slate-700 to-slate-900')+' flex items-center justify-center text-white font-extrabold text-sm tracking-tight shadow-lg">'+esc(r.badge)+'</div>'
-          +'<span class="text-xs font-semibold text-gray-400 text-right leading-relaxed pt-0.5">'+esc(r.period)+'</span></div>'
-          +'<h3 class="text-lg font-bold mb-1">'+esc(r.org)+'</h3>'
-          +'<p class="text-sm text-brand font-semibold mb-2">'+(esc(r.title)||'')+'</p>'
-          +'<p class="text-sm text-gray-500 leading-relaxed">'+(esc(r.description)||'')+'</p></div>'; };
-        var V='from-violet-500 to-purple-600', S='from-slate-700 to-slate-900';
-        var CAREER=[
-          {period:'2022.03 ~ 현재',org:'AI인터시스',title:'대표 이사',description:'빅데이터·머신러닝·챗봇·웹&앱·유튜브·구글 애널리틱스·ChatGPT 시스템 개발(sLLM)',badge:'AI',color:S},
-          {period:'2020.08 ~ 현재',org:'㈜BN시스템',title:'개발 이사',description:'풀 스택 홈페이지 개발',badge:'BN',color:S},
-          {period:'2019.07 ~ 현재',org:'㈜타임크래프트',title:'공동 대표(법인)',description:'온라인 콘텐츠 제작 & 안드로이드 어플 개발',badge:'타임',color:S},
-          {period:'2019.07 ~ 현재',org:'이피셜리치',title:'사외 이사',description:'온라인 콘텐츠 제작 & 안드로이드 어플 개발',badge:'ER',color:S},
-          {period:'2020.01 ~ 2020.03',org:'BN시스템',title:'개발 팀장',description:'애니메이션 공모전 웹 사이트 개발',badge:'BN',color:S},
-          {period:'2019.07 ~ 2020.01',org:'빈베이스㈜',title:'프리랜서(과장)',description:'암호화폐 전자 지갑·블록체인·거래소 개발 및 서비스',badge:'빈',color:S},
-          {period:'2017.09 ~ 2019.05',org:'애니스소프트',title:'프리랜서(차장)',description:'라이프코어 이온수기 클라우드 시스템 구축(AWS·젠킨스·플러터·PHP)',badge:'애니',color:S},
-          {period:'2018.08 ~ 2018.09',org:'애니스소프트',title:'프리랜서(과장)',description:'4개 선물회사(현대·삼성·NH·유진) 위험기반 자금세탁방지 체계 구축',badge:'애니',color:S},
-          {period:'2013.03 ~ 2016.04',org:'㈜서울스탠다드',title:'주임(팀장)',description:'품질분석 & SW 개발',badge:'SS',color:S},
-          {period:'2011.08 ~ 2013.01',org:'코리아로지스',title:'대리(팀원)',description:'응용 Application(안드로이드) 개발',badge:'KL',color:S},
-          {period:'2011.01 ~ 2011.04',org:'NetgeneTech',title:'연구원(팀원)',description:'LG U+ 장비 운용',badge:'NGT',color:S},
-          {period:'2010.02 ~ 2010.05',org:'노츠㈜',title:'연구원(팀원)',description:'Software Quality Test',badge:'노츠',color:S},
-          {period:'2008.12 ~ 2009.12',org:'UMID',title:'주임(팀원)',description:'HW / SW 연구 지원',badge:'UMID',color:S}
-        ];
-        var ACADEMIC=[
-          {period:'2021.03 ~ 2024.02',org:'호서대학교 벤처대학원',title:'융합공학 (박사)',description:'서울 · 졸업예정',badge:'호서',color:V},
-          {period:'2019.03 ~ 2021.02',org:'세종대학교 MBA',title:'빅데이터 경영학 (석사)',description:'서울',badge:'세종',color:V},
-          {period:'2013.03 ~ 2015.02',org:'경희사이버대학교',title:'디지털 미디어 공학 (학사)',description:'서울',badge:'경희',color:V},
-          {period:'2003.03 ~ 2009.02',org:'숭실대학교',title:'정보통신 전자공학 (학사)',description:'서울',badge:'숭실',color:V},
-          {period:'2001.03 ~ 2003.02',org:'부천대학교',title:'전자공학부 (전문학사)',description:'경기 부천시',badge:'부천',color:V},
-          {period:'1998.03 ~ 2001.02',org:'원미고등학교',title:'이공계',description:'경기 부천시',badge:'원미',color:V}
-        ];
-        var cg=document.getElementById('exp-career'); if(cg) cg.innerHTML=CAREER.map(card2).join('');
-        var ag=document.getElementById('exp-academic'); if(ag) ag.innerHTML=ACADEMIC.map(card2).join('');
-    })();
-
     (async function(){
       var cfg = window.SUPABASE_CONFIG||{};
       if(!cfg.url || !cfg.anonKey || cfg.url.indexOf('PASTE_')>=0) return;
@@ -277,6 +240,13 @@
           +'<div class="w-11 h-11 rounded-xl bg-gradient-to-br '+grad(r)+' flex items-center justify-center text-white font-bold text-base shrink-0 shadow-sm">'+badge(r)+'</div>'
           +'<div class="min-w-0"><div class="font-semibold text-sm leading-tight">'+esc(r.org)+'</div>'
           +'<div class="text-xs text-gray-500 mt-0.5 leading-snug">'+(esc(r.title)||esc(r.description)||'')+'</div></div></div>'; };
+        // 개발 경력·학력용 카드 (기간을 원문 그대로 표시 — '~ 현재' 등 보존)
+        var card2 = function(r){ return '<div class="reveal show group bg-white rounded-3xl border border-gray-100 p-7 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full">'
+          +'<div class="flex items-start justify-between gap-4 mb-5"><div class="w-12 h-12 shrink-0 rounded-2xl bg-gradient-to-br '+(esc(r.color)||'from-slate-700 to-slate-900')+' flex items-center justify-center text-white font-extrabold text-sm tracking-tight shadow-lg">'+esc(r.badge||(r.org||'').slice(0,2))+'</div>'
+          +'<span class="text-xs font-semibold text-gray-400 text-right leading-relaxed pt-0.5">'+(esc(r.period)||'')+'</span></div>'
+          +'<h3 class="text-lg font-bold mb-1">'+esc(r.org)+'</h3>'
+          +'<p class="text-sm text-brand font-semibold mb-2">'+(esc(r.title)||'')+'</p>'
+          +'<p class="text-sm text-gray-500 leading-relaxed">'+(esc(r.description)||'')+'</p></div>'; };
         // 날짜 내림차순 정렬 키 (period → YYYYMMDD 숫자)
         var dkey = function(r){ var m=(r.period||'').match(/(\d{4})[.\-]?(\d{1,2})?[.\-]?(\d{1,2})?/); if(!m) return 0; return parseInt(m[1])*10000 + (m[2]?parseInt(m[2]):0)*100 + (m[3]?parseInt(m[3]):0); };
         var byDateDesc = function(a,b){ return dkey(b)-dkey(a); };
@@ -290,6 +260,11 @@
         var fe = document.getElementById('exp-featured'); if(fe) fe.innerHTML = feat.map(card).join('');
         var pj = document.getElementById('exp-projects'); if(pj){ pj.innerHTML = projects.map(card).join(''); var pe=document.getElementById('proj-empty'); if(pe) pe.classList.toggle('hidden', projects.length>0); }
         var edu = document.getElementById('exp-education'); if(edu){ edu.innerHTML = education.map(card).join(''); var ee=document.getElementById('edu-empty'); if(ee) ee.classList.toggle('hidden', education.length>0); }
+        // 개발 경력 · 학력 (DB kind=career/academic · 원문 기간)
+        var career   = data.filter(function(r){return kindOf(r)==='career';}).sort(byDateDesc);
+        var academic = data.filter(function(r){return kindOf(r)==='academic';}).sort(byDateDesc);
+        var cg = document.getElementById('exp-career');   if(cg) cg.innerHTML = career.map(card2).join('');
+        var ag = document.getElementById('exp-academic'); if(ag) ag.innerHTML = academic.map(card2).join('');
         // (탭 전환은 아래 독립 블록에서 처리 — 데이터 로드와 무관)
         var ex = document.getElementById('exp-extra');
         if(ex){
