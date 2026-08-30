@@ -6,12 +6,5 @@
 // ============================================================
 window.SUPABASE_CONFIG = {
   url:     "https://xexhbotmkwuspbrgtuoo.supabase.co",      // 예: https://abcd1234.supabase.co
-  anonKey: "sb_publishable_KvEbOGEnwN9AuK1etGbrVA_WhRZRsYp",  // eyJhbGci... 로 시작하는 긴 문자열
-
-  // 공개 experience.html 페이지에 표시할 "포트폴리오 소유자"의 user_id (UUID).
-  //  · 비워두면 모든 사용자의 이력이 함께 표시됩니다.
-  //  · 신규 가입자 이력이 이 공개 사이트에 섞이지 않게 하려면 소유자 UUID 를 넣으세요.
-  //  · UUID 찾기: Supabase SQL Editor 에서
-  //      select id from auth.users where email = 'sdw1904@naver.com';
-  ownerUserId: ""
+  anonKey: "sb_publishable_KvEbOGEnwN9AuK1etGbrVA_WhRZRsYp"   // eyJhbGci... 로 시작하는 긴 문자열
 };
