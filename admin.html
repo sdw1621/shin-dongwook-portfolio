@@ -152,7 +152,7 @@
                         </select></label>
                     <label class="block"><span class="text-xs font-semibold text-gray-500 dark:text-gray-400">구분(탭)</span>
                         <select id="f_kind" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 outline-none focus:border-brand text-sm">
-                            <option value="lecture" selected>강의 · 출강</option><option value="project">프로젝트 · 연구</option><option value="education">교육이수</option><option value="career">개발 경력</option><option value="academic">학력</option>
+                            <option value="lecture" selected>강의 · 출강</option><option value="project">프로젝트 · 연구</option><option value="education">교육이수</option><option value="career">경력</option><option value="academic">학력</option>
                         </select></label>
                     <label class="block"><span class="text-xs font-semibold text-gray-500 dark:text-gray-400">배지 약칭</span>
                         <input id="f_badge" placeholder="예: SNU (없으면 비워두기)" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 outline-none focus:border-brand text-sm"></label>
@@ -242,7 +242,7 @@
         }
         sb = window.supabase.createClient(cfg.url, cfg.anonKey);
         const CATS = ["대기업·금융","정부·공공기관","대학·교육","기타"];
-        const KIND_LABEL = {lecture:"강의",project:"프로젝트",education:"교육이수",career:"개발경력",academic:"학력"};
+        const KIND_LABEL = {lecture:"강의",project:"프로젝트",education:"교육이수",career:"경력",academic:"학력"};
         function esc(s){ return (s||"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
         // 기간 표시를 '년.월.일 시:분' 톤으로 통일 (시간 미지정 시 09:00~18:00). 저장 데이터는 그대로 두고 표시만 정규화.
         function normalizePeriod(period){
