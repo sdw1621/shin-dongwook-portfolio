@@ -298,18 +298,26 @@
         // ── 필터(검색·연도) + 다운로드(Excel/PDF) — 모든 탭 공통 ──
         (function(){
             var all=data.slice();
-            var yset={}; all.forEach(function(r){ yearsOf(r.period).forEach(function(y){ yset[y]=1; }); });
             var ysel=document.getElementById('exp-year');
-            if(ysel){ Object.keys(yset).sort(function(a,b){return b-a;}).forEach(function(y){ var o=document.createElement('option'); o.value=y; o.textContent=y+'년'; ysel.appendChild(o); }); }
             var si=document.getElementById('exp-search');
+            // 탭(kind)별 존재하는 연도만 모아둠 — 연도 드롭다운을 현재 탭 기준으로 채움
+            var yByKind={}; all.forEach(function(r){ var k=r.kind||'lecture'; (yByKind[k]=yByKind[k]||{}); yearsOf(r.period).forEach(function(y){ yByKind[k][y]=1; }); });
+            var activeKind=function(){ var vis=document.querySelector('.exp-panel:not(.hidden)'); return (vis&&vis.id.indexOf('panel-')===0)?vis.id.slice(6):'academic'; };
+            function rebuildYears(){ if(!ysel) return; var k=activeKind(), cur=ysel.value, ys=yByKind[k]||{};
+                ysel.innerHTML='<option value="">전체 연도</option>';
+                Object.keys(ys).sort(function(a,b){return b-a;}).forEach(function(y){ var o=document.createElement('option'); o.value=y; o.textContent=y+'년'; if(y===cur) o.selected=true; ysel.appendChild(o); });
+                if(cur && !ys[cur]) ysel.value=''; }   // 현재 탭에 없는 연도가 선택돼 있으면 초기화
             function apply(){ var q=((si&&si.value)||'').trim().toLowerCase(), y=(ysel&&ysel.value)||'';
                 document.querySelectorAll('.exp-card').forEach(function(el){
                     var okS=!q||(el.getAttribute('data-s')||'').indexOf(q)>=0;
                     var okY=!y||((' '+(el.getAttribute('data-y')||'')+' ').indexOf(' '+y+' ')>=0);
                     el.classList.toggle('exp-hide', !(okS&&okY)); }); }
+            rebuildYears();
+            // 탭 전환 시 연도 목록 재구성 + 재필터 (패널 토글 onclick 이후에 실행되도록 addEventListener 사용)
+            document.querySelectorAll('.exp-tab').forEach(function(b){ b.addEventListener('click', function(){ rebuildYears(); apply(); }); });
             if(si) si.addEventListener('input', apply);
             if(ysel) ysel.addEventListener('change', apply);
-            var cb=document.getElementById('exp-clear'); if(cb) cb.onclick=function(){ if(si)si.value=''; if(ysel)ysel.value=''; apply(); };
+            var cb=document.getElementById('exp-clear'); if(cb) cb.onclick=function(){ if(si)si.value=''; if(ysel)ysel.value=''; rebuildYears(); apply(); };
             var KL={lecture:'강의·출강',project:'프로젝트·연구',education:'교육이수',career:'경력',academic:'학력'};
             var ORDER=['academic','career','lecture','project','education'];
             var sorted=all.slice().sort(function(a,b){ var ka=ORDER.indexOf(a.kind||'lecture'), kb=ORDER.indexOf(b.kind||'lecture'); if(ka!==kb) return ka-kb; return (b.period||'').localeCompare(a.period||''); });
