@@ -283,7 +283,8 @@
           +'<p class="text-sm text-brand font-semibold mb-2">'+(esc(r.title)||'')+'</p>'
           +'<p class="text-sm text-gray-500 leading-relaxed">'+(esc(r.description)||'')+'</p></div>'; };
         // 날짜 내림차순 정렬 키 (period → YYYYMMDD 숫자)
-        var dkey = function(r){ var m=(r.period||'').match(/(\d{4})[.\-]?(\d{1,2})?[.\-]?(\d{1,2})?/); if(!m) return 0; return parseInt(m[1])*10000 + (m[2]?parseInt(m[2]):0)*100 + (m[3]?parseInt(m[3]):0); };
+        // 정렬 키: normalizePeriod로 정규화(230727→2023.07.27) 후 시작일 YYYYMMDD 추출 — 압축표기 오정렬 방지
+        var dkey = function(r){ var s=normalizePeriod(r.period)||String(r.period||''); var m=s.match(/(\d{4})\.(\d{2})\.(\d{2})/); if(m) return parseInt(m[1]+m[2]+m[3],10); var y=(s.match(/(?:19|20)\d{2}/)||['0'])[0]; return parseInt(String(y)+'0000',10); };
         var byDateDesc = function(a,b){ return dkey(b)-dkey(a); };
         var kindOf = function(r){ return (r.kind||'lecture'); };
         var lectures  = data.filter(function(r){return kindOf(r)==='lecture';});
@@ -328,7 +329,7 @@
             var fnc=document.getElementById('exp-filternote-clear'); if(fnc) fnc.onclick=clearAll;
             var KL={lecture:'강의·출강',project:'프로젝트·연구',education:'교육이수',career:'경력',academic:'학력'};
             var ORDER=['academic','career','lecture','project','education'];
-            var sorted=all.slice().sort(function(a,b){ var ka=ORDER.indexOf(a.kind||'lecture'), kb=ORDER.indexOf(b.kind||'lecture'); if(ka!==kb) return ka-kb; return (b.period||'').localeCompare(a.period||''); });
+            var sorted=all.slice().sort(function(a,b){ var ka=ORDER.indexOf(a.kind||'lecture'), kb=ORDER.indexOf(b.kind||'lecture'); if(ka!==kb) return ka-kb; return dkey(b)-dkey(a); });
             var curRows=function(){ var q=((si&&si.value)||'').trim().toLowerCase(), y=(ysel&&ysel.value)||'';
                 return sorted.filter(function(r){ var s=((r.org||'')+' '+(r.title||'')+' '+(r.description||'')).toLowerCase(); return (!q||s.indexOf(q)>=0)&&(!y||yearsOf(r.period).indexOf(parseInt(y,10))>=0); }); };
             // 만 나이(대한민국) 계산
