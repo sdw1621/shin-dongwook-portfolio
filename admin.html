@@ -502,12 +502,23 @@
         // 파일 미리보기
         function isPdf(f){ return f.type==='application/pdf' || /\.pdf$/i.test(f.name); }
         function isImage(f){ return (f.type||'').indexOf('image/')===0 || /\.(png|jpe?g|webp|gif|bmp|heic|heif)$/i.test(f.name); }
-        function renderFilePreview(){
-            const files=[...($("resumeFile").files||[])], box=$("filePreview");
-            box.classList.toggle("hidden", !files.length);
-            box.innerHTML=files.map(f=>'<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-xs">'+(isPdf(f)?'📄':'🖼️')+' '+esc(f.name)+' <span class="text-gray-400">'+Math.max(1,Math.round(f.size/1024))+'KB</span></span>').join('');
+        let pickedFiles=[];
+        function syncFileInput(){
+            try{ const dt=new DataTransfer(); pickedFiles.forEach(f=>dt.items.add(f)); $("resumeFile").files=dt.files; }
+            catch(e){ if(!pickedFiles.length) $("resumeFile").value=''; }
         }
-        $("resumeFile").onchange=renderFilePreview;
+        function clearFiles(){ pickedFiles=[]; $("resumeFile").value=''; renderFilePreview(); }
+        function removeFile(i){ pickedFiles.splice(i,1); syncFileInput(); renderFilePreview(); }
+        function renderFilePreview(){
+            const box=$("filePreview");
+            box.classList.toggle("hidden", !pickedFiles.length);
+            box.innerHTML=pickedFiles.map((f,i)=>'<span class="group relative inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-xs">'
+                +(isPdf(f)?'📄':'🖼️')+' '+esc(f.name)+' <span class="text-gray-400">'+Math.max(1,Math.round(f.size/1024))+'KB</span>'
+                +'<button type="button" data-rm="'+i+'" title="첨부 취소" aria-label="'+esc(f.name)+' 첨부 취소" class="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-gray-600 hover:bg-red-600 text-white text-[9px] leading-none flex items-center justify-center shadow transition sm:opacity-0 group-hover:opacity-100 focus:opacity-100">✕</button>'
+                +'</span>').join('');
+        }
+        $("filePreview").onclick=(e)=>{ const b=e.target.closest('[data-rm]'); if(b) removeFile(+b.dataset.rm); };
+        $("resumeFile").onchange=()=>{ pickedFiles=[...($("resumeFile").files||[])]; renderFilePreview(); };
 
         // PDF → 텍스트 / 이미지
         async function extractPdfText(file){ if(!window.pdfjsLib) throw new Error('PDF 라이브러리 로드 실패'); const buf=await file.arrayBuffer(); const pdf=await pdfjsLib.getDocument({data:buf}).promise; let t=''; for(let i=1;i<=pdf.numPages;i++){ const pg=await pdf.getPage(i); const c=await pg.getTextContent(); t+=c.items.map(x=>x.str).join(' ')+'\n'; } return t; }
@@ -580,7 +591,7 @@
             const blocks=[]; let imgBudget=MAX_IMAGES, scanned=0;
             const text=$("resumeText").value.trim();
             if(text) blocks.push({type:'text',text:'[직접 입력한 이력 텍스트]\n'+text.slice(0,60000)});
-            for(const f of [...($("resumeFile").files||[])]){
+            for(const f of pickedFiles){
                 if(isPdf(f)){
                     let t=''; try{ t=await extractPdfText(f); }catch(e){ t=''; }
                     if(t.replace(/\s/g,'').length>=100){
@@ -646,7 +657,7 @@
             const { error }=await sb.from('careers').insert(finalRows);
             $("importMsg").textContent='';
             if(error){ alert('저장 오류: '+error.message); return; }
-            $("resumeFile").value=''; $("resumeText").value=''; renderFilePreview();
+            clearFiles(); $("resumeText").value='';
             closeImport(); loadCareers(); alert(finalRows.length+'건 추가 완료 ✓'+(skipped?(' (중복 '+skipped+'건 자동 제외)'):''));
         };
 
