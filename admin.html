@@ -206,6 +206,12 @@
                         <select id="f_kind" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 outline-none focus:border-brand text-sm">
                             <option value="lecture" selected>강의 · 출강</option><option value="project">프로젝트 · 연구</option><option value="education">교육이수</option><option value="career">경력</option><option value="academic">학력</option>
                         </select></label>
+                    <div class="grid grid-cols-2 gap-3 md:col-span-2">
+                        <label class="block"><span class="text-xs font-semibold text-gray-500 dark:text-gray-400">강의 횟수 <span class="font-normal text-gray-400">(회 · 강의 탭)</span></span>
+                            <input id="f_sessions" type="number" min="0" step="1" placeholder="예: 3" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 outline-none focus:border-brand text-sm"></label>
+                        <label class="block"><span class="text-xs font-semibold text-gray-500 dark:text-gray-400">강의 시간 <span class="font-normal text-gray-400">(시간 합계)</span></span>
+                            <input id="f_hours" type="number" min="0" step="0.5" placeholder="예: 24" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 outline-none focus:border-brand text-sm"></label>
+                    </div>
                     <label class="block"><span class="text-xs font-semibold text-gray-500 dark:text-gray-400">배지 약칭</span>
                         <input id="f_badge" placeholder="예: SNU (없으면 비워두기)" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 outline-none focus:border-brand text-sm"></label>
                     <label class="block"><span class="text-xs font-semibold text-gray-500 dark:text-gray-400">배지 색상</span>
@@ -388,6 +394,7 @@
                             <span class="font-bold">${esc(r.org)}</span>
                             ${r.featured?'<span class="text-[10px] font-bold text-violet-700 dark:text-violet-300 bg-violet-100 dark:bg-violet-900/50 px-1.5 py-0.5 rounded-full">대표</span>':''}
                             <span class="text-xs text-gray-400">${esc(normalizePeriod(r.period))||''}</span>
+                            ${(r.sessions!=null||r.hours!=null)?`<span class="text-[10px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/40 px-1.5 py-0.5 rounded-full">${r.sessions!=null?r.sessions+'회':''}${(r.sessions!=null&&r.hours!=null)?' · ':''}${r.hours!=null?r.hours+'시간':''}</span>`:((r.kind||'lecture')==='lecture'?'<span class="text-[10px] text-amber-700 bg-amber-50 dark:bg-amber-900/30 dark:text-amber-300 px-1.5 py-0.5 rounded-full">횟수·시간 미입력</span>':'')}
                             <span class="text-[10px] text-brand bg-blue-50 dark:bg-blue-900/40 px-1.5 py-0.5 rounded-full">${KIND_LABEL[r.kind||'lecture']||'강의'}</span>
                             <span class="text-[10px] text-gray-400 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded-full">${esc(r.category)||'기타'}</span>
                         </div>
@@ -450,6 +457,7 @@
             $("f_org").value=r.org||""; $("f_title").value=r.title||""; $("f_desc").value=r.description||"";
             $("f_cat").value=CATS.includes(r.category)?r.category:"기타"; $("f_badge").value=r.badge||"";
             $("f_color").value=r.color||"from-blue-600 to-indigo-700"; $("f_featured").checked=!!r.featured; $("f_sort").value=r.sort_order||0;
+            $("f_sessions").value=(r.sessions==null?"":r.sessions); $("f_hours").value=(r.hours==null?"":r.hours);
             $("formTitle").textContent="이력 수정"; openModal();
         }
         function nextSortOrder(){ const arr=(window._careers||[]).map(c=>c.sort_order||0); return (arr.length?Math.max(...arr):0)+1; }
@@ -461,7 +469,8 @@
             const dup=(window._careers||[]).find(c=> c.id!==id && (c.org||'').trim().toLowerCase()===org.toLowerCase() && (c.title||'').trim().toLowerCase()===title.toLowerCase());
             if(dup){ if(!confirm("⚠️ 중복 가능성이 있습니다.\n\n이미 동일한 이력이 있어요:\n· "+dup.org+(dup.title?" / "+dup.title:"")+(dup.period?" ("+dup.period+")":"")+"\n\n그래도 저장할까요?")) return; }
             const row={ period:($("f_periodRaw").value.trim()||buildPeriod()), kind:$("f_kind").value, org, title, description:$("f_desc").value.trim(), category:$("f_cat").value,
-                badge:$("f_badge").value.trim(), color:$("f_color").value, featured:$("f_featured").checked, sort_order:parseInt($("f_sort").value)||0 };
+                badge:$("f_badge").value.trim(), color:$("f_color").value, featured:$("f_featured").checked, sort_order:parseInt($("f_sort").value)||0,
+                sessions:($("f_sessions").value===""?null:parseInt($("f_sessions").value)), hours:($("f_hours").value===""?null:parseFloat($("f_hours").value)) };
             const res = id ? await sb.from("careers").update(row).eq("id",id) : await sb.from("careers").insert([row]);
             if(res.error){ alert("저장 오류: "+res.error.message); return; }
             $("saveMsg").textContent = id ? "수정되었습니다 ✓" : "추가되었습니다 ✓"; setTimeout(()=>$("saveMsg").textContent="", 2000);
