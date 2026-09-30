@@ -52,7 +52,8 @@
     <nav id="nav" class="fixed w-full bg-white/80 backdrop-blur-xl z-50 border-b border-gray-100 transition">
         <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
             <a href="index.html" class="flex items-center gap-2.5 font-extrabold text-lg tracking-tight"><span class="ai-logo w-8 h-8 rounded-lg shadow-sm ring-1 ring-gray-100"></span><span>신동욱<span class="text-brand">.</span><span class="ml-2 text-gray-300 font-medium text-sm align-middle">AI EDUCATOR</span></span></a>
-            <div class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-500">
+            <button id="nav-toggle" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="nav-mobile" class="md:hidden -mr-2 p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path id="nav-ico-open" stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16"/><path id="nav-ico-close" class="hidden" stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/></svg></button>
+        <div class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-500">
                 <a href="about.html" class="hover:text-black transition text-gray-900 font-bold">소개</a>
                 <a href="skills.html" class="hover:text-black transition">전문 분야</a>
                 <a href="experience.html" class="hover:text-black transition">주요 이력</a>
@@ -60,6 +61,9 @@
                 <a href="publications.html" class="hover:text-black transition">저서</a>
                 <a href="contact.html" class="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition">문의하기</a>
             </div>
+        </div>
+        <div id="nav-mobile" class="hidden md:hidden border-t border-gray-100 bg-white/95 px-6 py-3 text-base font-medium">
+            <a href="about.html" class="block px-3 py-3 rounded-xl text-gray-900 font-bold bg-gray-50">소개</a><a href="skills.html" class="block px-3 py-3 rounded-xl text-gray-600 hover:bg-gray-50">전문 분야</a><a href="experience.html" class="block px-3 py-3 rounded-xl text-gray-600 hover:bg-gray-50">주요 이력</a><a href="clients.html" class="block px-3 py-3 rounded-xl text-gray-600 hover:bg-gray-50">협업 기관</a><a href="publications.html" class="block px-3 py-3 rounded-xl text-gray-600 hover:bg-gray-50">저서</a><a href="contact.html" class="block mt-2 px-4 py-3 bg-black text-white rounded-full text-center">문의하기</a>
         </div>
     </nav>
 
@@ -146,6 +150,14 @@
         addEventListener('scroll', () => {
             nav.classList.toggle('shadow-sm', scrollY > 10);
         });
+    </script>
+<script>
+    // 모바일 메뉴 토글
+    (function(){var b=document.getElementById('nav-toggle'),m=document.getElementById('nav-mobile');if(!b||!m)return;
+      function set(o){m.classList.toggle('hidden',!o);b.setAttribute('aria-expanded',o);b.setAttribute('aria-label',o?'메뉴 닫기':'메뉴 열기');document.getElementById('nav-ico-open').classList.toggle('hidden',o);document.getElementById('nav-ico-close').classList.toggle('hidden',!o);}
+      b.addEventListener('click',function(){set(m.classList.contains('hidden'));});
+      m.addEventListener('click',function(e){if(e.target.closest('a'))set(false);});
+      addEventListener('resize',function(){if(innerWidth>=768)set(false);});})();
     </script>
 </body>
 </html>
