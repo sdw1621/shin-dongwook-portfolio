@@ -106,7 +106,12 @@
                     <p class="text-xl md:text-2xl font-extrabold tracking-tight">대표 출강 이력</p>
                     <span class="hidden md:block text-sm text-gray-400 font-medium">기업 · 대학 · 정부 · 협회</span>
                 </div>
+                <div id="exp-lecsum" class="mb-6 px-5 py-4 rounded-2xl bg-blue-50 border border-blue-100 text-sm text-blue-900 hidden"></div>
                 <div id="exp-featured" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+                <details id="exp-orgwrap" class="mt-10 hidden rounded-2xl border border-gray-100 bg-white">
+                    <summary class="cursor-pointer select-none px-5 py-4 text-sm font-bold text-gray-700">📊 기관별 강의 횟수·시간 합계 <span class="font-normal text-gray-400">(펼쳐서 보기)</span></summary>
+                    <div id="exp-orgtable" class="px-5 pb-5 overflow-x-auto"></div>
+                </details>
                 <div class="mt-10">
                     <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-5 reveal">그 외 주요 출강 · 년도별</p>
                     <div id="exp-extra" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
@@ -265,16 +270,20 @@
         var badge = function(r){ return esc(keypointBadge(r.org, r.badge)); };
         var grad = function(r){ return r.featured ? (esc(r.color)||'from-blue-600 to-indigo-700') : (CAT_COLOR[r.category]||'from-teal-500 to-cyan-600'); };
         var fdata = function(r){ return ' data-s="'+esc(((r.org||'')+' '+(r.title||'')+' '+(r.description||'')).toLowerCase())+'" data-y="'+yearsOf(r.period).join(' ')+'"'; };
-        var card = function(r){ return '<div class="reveal show group exp-card bg-white rounded-3xl border border-gray-100 p-7 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full"'+fdata(r)+'>'
+        var cardBase = function(r){ return '<div class="reveal show group exp-card bg-white rounded-3xl border border-gray-100 p-7 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full"'+fdata(r)+'>'
           +'<div class="flex items-start justify-between gap-4 mb-5"><div class="w-12 h-12 shrink-0 rounded-2xl bg-gradient-to-br '+grad(r)+' flex items-center justify-center text-white font-extrabold text-sm tracking-tight shadow-lg">'+badge(r)+'</div>'
           +'<span class="text-xs font-semibold text-gray-400 text-right leading-relaxed pt-0.5">'+(esc(normalizePeriod(r.period))||'')+'</span></div>'
           +'<h3 class="text-lg font-bold mb-1">'+esc(r.org)+'</h3>'
           +'<p class="text-sm text-brand font-semibold mb-2">'+(esc(r.title)||'')+'</p>'
           +'<p class="text-sm text-gray-500 leading-relaxed">'+(esc(r.description)||'')+'</p></div>'; };
+        // 강의 횟수·시간 표기 (DB sessions·hours — 없으면 표시 안 함)
+        var fmtH = function(h){ return String(Math.round(Number(h)*10)/10); };
+        var statText = function(r){ var a=[]; if(r.sessions!=null && r.sessions!=='') a.push(r.sessions+'회'); if(r.hours!=null && r.hours!=='') a.push(fmtH(r.hours)+'시간'); return a.join(' · '); };
+        var card = function(r){ var h=cardBase(r), t=statText(r); return t ? h.replace(/<\/div>$/, '<div class="mt-4 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 text-brand text-[11px] font-bold">⏱ '+esc(t)+'</div></div>') : h; };
         var mini = function(r, cls){ return '<div class="reveal show '+(cls||'')+'flex items-center gap-3.5 p-4 bg-white rounded-2xl border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">'
           +'<div class="w-11 h-11 rounded-xl bg-gradient-to-br '+grad(r)+' flex items-center justify-center text-white font-bold text-base shrink-0 shadow-sm">'+badge(r)+'</div>'
           +'<div class="min-w-0"><div class="font-semibold text-sm leading-tight">'+esc(r.org)+'</div>'
-          +'<div class="text-xs text-gray-500 mt-0.5 leading-snug">'+(esc(r.title)||esc(r.description)||'')+'</div></div></div>'; };
+          +'<div class="text-xs text-gray-500 mt-0.5 leading-snug">'+(esc(r.title)||esc(r.description)||'')+(statText(r)?' <span class="text-brand font-semibold">· '+esc(statText(r))+'</span>':'')+'</div></div></div>'; };
         // 개발 경력·학력용 카드 (기간을 원문 그대로 표시 — '~ 현재' 등 보존)
         var card2 = function(r){ return '<div class="reveal show group exp-card bg-white rounded-3xl border border-gray-100 p-7 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full"'+fdata(r)+'>'
           +'<div class="flex items-start justify-between gap-4 mb-5"><div class="w-12 h-12 shrink-0 rounded-2xl bg-gradient-to-br '+(esc(r.color)||'from-slate-700 to-slate-900')+' flex items-center justify-center text-white font-extrabold text-sm tracking-tight shadow-lg">'+esc(r.badge||(r.org||'').slice(0,2))+'</div>'
@@ -318,7 +327,7 @@
                     var okS=!q||(el.getAttribute('data-s')||'').indexOf(q)>=0;
                     var okY=!y||((' '+(el.getAttribute('data-y')||'')+' ').indexOf(' '+y+' ')>=0);
                     el.classList.toggle('exp-hide', !(okS&&okY)); });
-                var note=document.getElementById('exp-filternote'); if(note) note.classList.toggle('hidden', !(q||y)); }
+                var note=document.getElementById('exp-filternote'); if(note) note.classList.toggle('hidden', !(q||y)); renderStats(); }
             rebuildYears();
             // 탭 전환 시 연도 목록 재구성 + 재필터 (패널 토글 onclick 이후에 실행되도록 addEventListener 사용)
             document.querySelectorAll('.exp-tab').forEach(function(b){ b.addEventListener('click', function(){ rebuildYears(); apply(); }); });
@@ -332,6 +341,18 @@
             var sorted=all.slice().sort(function(a,b){ var ka=ORDER.indexOf(a.kind||'lecture'), kb=ORDER.indexOf(b.kind||'lecture'); if(ka!==kb) return ka-kb; return dkey(b)-dkey(a); });
             var curRows=function(){ var q=((si&&si.value)||'').trim().toLowerCase(), y=(ysel&&ysel.value)||'';
                 return sorted.filter(function(r){ var s=((r.org||'')+' '+(r.title||'')+' '+(r.description||'')).toLowerCase(); return (!q||s.indexOf(q)>=0)&&(!y||yearsOf(r.period).indexOf(parseInt(y,10))>=0); }); };
+            // ── 강의 횟수·시간 집계 (현재 필터 기준) ──
+            var groupOf=function(org){ var o=String(org||'').replace(/[㈜㈔]/g,'').trim(); var m=o.match(/\(([^)]*그룹[^)]*)\)/); if(m) return m[1].replace(/\s+/g,''); o=o.replace(/\s*\([^)]*\)\s*/g,' ').replace(/\s+(그룹)$/,'$1').trim(); return o||String(org||''); };
+            var sumBy=function(rows){ var t={n:0,s:0,h:0,miss:0}; rows.forEach(function(r){ t.n++; var hs=r.sessions!=null&&r.sessions!=='', hh=r.hours!=null&&r.hours!==''; if(hs||hh){ t.s+=hs?Number(r.sessions):0; t.h+=hh?Number(r.hours):0; } else t.miss++; }); return t; };
+            var orgRows=function(rows){ var g={}; rows.forEach(function(r){ var k=groupOf(r.org); var x=g[k]||(g[k]={org:k,n:0,s:0,h:0}); x.n++; x.s+=Number(r.sessions)||0; x.h+=Number(r.hours)||0; }); return Object.keys(g).map(function(k){return g[k];}).filter(function(x){return x.s||x.h;}).sort(function(a,b){return b.h-a.h||b.s-a.s;}); };
+            function renderStats(){
+                var box=document.getElementById('exp-lecsum'), wrap=document.getElementById('exp-orgwrap'), tb=document.getElementById('exp-orgtable');
+                var L=curRows().filter(function(r){return (r.kind||'lecture')==='lecture';});
+                var t=sumBy(L), og=orgRows(L);
+                if(box){ if(t.s||t.h){ box.classList.remove('hidden'); box.innerHTML='<b class="text-lg">총 '+t.s.toLocaleString()+'회 · '+Number(fmtH(t.h)).toLocaleString()+'시간</b> <span class="text-blue-700/80">· 횟수·시간이 입력된 '+(t.n-t.miss)+'건 기준'+(t.miss?' (미입력 '+t.miss+'건 제외)':'')+'</span>'; } else box.classList.add('hidden'); }
+                if(wrap&&tb){ if(og.length){ wrap.classList.remove('hidden'); tb.innerHTML='<table class="w-full text-sm"><thead><tr class="text-left text-xs text-gray-400 border-b border-gray-100"><th class="py-2 pr-3 font-semibold">기관</th><th class="py-2 px-3 font-semibold text-right">건수</th><th class="py-2 px-3 font-semibold text-right">횟수</th><th class="py-2 pl-3 font-semibold text-right">시간</th></tr></thead><tbody>'+og.map(function(x){ return '<tr class="border-b border-gray-50"><td class="py-2 pr-3 font-medium">'+esc(x.org)+'</td><td class="py-2 px-3 text-right text-gray-500">'+x.n+'</td><td class="py-2 px-3 text-right">'+x.s+'회</td><td class="py-2 pl-3 text-right font-semibold">'+fmtH(x.h)+'시간</td></tr>'; }).join('')+'</tbody></table>'; } else wrap.classList.add('hidden'); }
+            }
+            renderStats();
             // 만 나이(대한민국) 계산
             var ageOf=function(birth){ if(!birth) return ''; var b=new Date(birth); if(isNaN(b.getTime())) return ''; var t=new Date(); var a=t.getFullYear()-b.getFullYear(); if(t.getMonth()<b.getMonth()||(t.getMonth()===b.getMonth()&&t.getDate()<b.getDate())) a--; return a; };
             var birthFmt=function(birth){ if(!birth) return ''; var b=new Date(birth); if(isNaN(b.getTime())) return String(birth); var p=function(n){return String(n).padStart(2,'0');}; return b.getFullYear()+'.'+p(b.getMonth()+1)+'.'+p(b.getDate()); };
@@ -361,11 +382,13 @@
                     var wi=XLSX.utils.aoa_to_sheet(info); wi['!cols']=[{wch:12},{wch:60}];
                     XLSX.utils.book_append_sheet(wb, wi, '기본정보');
                     ORDER.forEach(function(k){ var it=cr.filter(function(r){return (r.kind||'lecture')===k;}); if(!it.length) return;
-                        var aoa=[['기간','기관/회사','과정/직위','설명']];
-                        it.forEach(function(r){ aoa.push([r.period||'',r.org||'',r.title||'',r.description||'']); });
-                        var ws=XLSX.utils.aoa_to_sheet(aoa); ws['!cols']=[{wch:26},{wch:24},{wch:24},{wch:52}];
+                        var aoa=[['기간','기관/회사','과정/직위','설명','횟수','시간']];
+                        it.forEach(function(r){ aoa.push([r.period||'',r.org||'',r.title||'',r.description||'',(r.sessions!=null?r.sessions:''),(r.hours!=null?Number(r.hours):'')]); });
+                        var ws=XLSX.utils.aoa_to_sheet(aoa); ws['!cols']=[{wch:26},{wch:24},{wch:24},{wch:52},{wch:8},{wch:8}];
                         XLSX.utils.book_append_sheet(wb, ws, KL[k]||k);
                     });
+                    var og=orgRows(cr.filter(function(r){return (r.kind||'lecture')==='lecture';}));
+                    if(og.length){ var oa=[['기관','건수','횟수','시간']]; og.forEach(function(x){ oa.push([x.org,x.n,x.s,Number(fmtH(x.h))]); }); oa.push(['합계',og.reduce(function(a,x){return a+x.n;},0),og.reduce(function(a,x){return a+x.s;},0),Number(fmtH(og.reduce(function(a,x){return a+x.h;},0)))]); var wo=XLSX.utils.aoa_to_sheet(oa); wo['!cols']=[{wch:30},{wch:8},{wch:8},{wch:8}]; XLSX.utils.book_append_sheet(wb, wo, '강의 기관별 합계'); }
                     XLSX.writeFile(wb, '신동욱_이력.xlsx');
                     return;
                 }
@@ -385,9 +408,12 @@
                 var sec='';
                 var cur=curRows();
                 ORDER.forEach(function(k){ var it=cur.filter(function(r){return (r.kind||'lecture')===k;}); if(!it.length) return;
-                    sec+='<h2>'+KL[k]+'</h2><table><thead><tr><th>기간</th><th>기관/회사</th><th>과정/직위</th><th>설명</th></tr></thead><tbody>';
-                    it.forEach(function(r){ sec+='<tr><td>'+e2(r.period)+'</td><td>'+e2(r.org)+'</td><td>'+e2(r.title)+'</td><td>'+e2(r.description)+'</td></tr>'; });
+                    sec+='<h2>'+KL[k]+'</h2><table><thead><tr><th>기간</th><th>기관/회사</th><th>과정/직위</th><th>설명</th><th>횟수</th><th>시간</th></tr></thead><tbody>';
+                    it.forEach(function(r){ sec+='<tr><td>'+e2(r.period)+'</td><td>'+e2(r.org)+'</td><td>'+e2(r.title)+'</td><td>'+e2(r.description)+'</td><td>'+(r.sessions!=null?e2(String(r.sessions)):'')+'</td><td>'+(r.hours!=null?e2(fmtH(r.hours)):'')+'</td></tr>'; });
                     sec+='</tbody></table>'; });
+                var ogp=orgRows(cur.filter(function(r){return (r.kind||'lecture')==='lecture';}));
+                if(ogp.length){ var tS=ogp.reduce(function(a,x){return a+x.s;},0), tH=ogp.reduce(function(a,x){return a+x.h;},0);
+                    sec+='<h2>강의 기관별 횟수·시간 합계</h2><table><thead><tr><th>기관</th><th>건수</th><th>횟수</th><th>시간</th></tr></thead><tbody>'+ogp.map(function(x){ return '<tr><td>'+e2(x.org)+'</td><td>'+x.n+'</td><td>'+x.s+'</td><td>'+fmtH(x.h)+'</td></tr>'; }).join('')+'<tr><th>합계</th><th></th><th>'+tS+'</th><th>'+fmtH(tH)+'</th></tr></tbody></table>'; }
                 // 상단 기본정보 카드(사진 + 인적사항)
                 var hdr='';
                 var pr=profRows(prof);
